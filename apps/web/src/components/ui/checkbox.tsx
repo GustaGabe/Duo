@@ -1,6 +1,17 @@
-import { cn } from '@/lib/cn';
+import { tv, type VariantProps } from '@/lib/tv';
 
-export interface CheckboxProps {
+export const checkbox = tv({
+  base: 'grid size-5.5 shrink-0 cursor-pointer place-items-center rounded-[7px] border-[1.5px] transition-colors',
+  variants: {
+    checked: {
+      true: 'border-accent bg-accent text-on-accent',
+      false: 'border-line-dashed bg-surface',
+    },
+  },
+  defaultVariants: { checked: false },
+});
+
+export interface CheckboxProps extends VariantProps<typeof checkbox> {
   checked: boolean;
   onChange: (checked: boolean) => void;
   label: string;
@@ -16,11 +27,7 @@ export function Checkbox({ checked, onChange, label, hideLabel = false, classNam
       aria-checked={checked}
       aria-label={hideLabel ? label : undefined}
       onClick={() => onChange(!checked)}
-      className={cn(
-        'grid size-5.5 shrink-0 cursor-pointer place-items-center rounded-[7px] border-[1.5px] transition-colors',
-        checked ? 'border-accent bg-accent text-on-accent' : 'border-line-dashed bg-surface',
-        className,
-      )}
+      className={checkbox({ checked, className })}
     >
       {checked ? (
         <svg viewBox="0 0 14 14" className="size-3.5" aria-hidden="true">

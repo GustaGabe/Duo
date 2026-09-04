@@ -1,0 +1,100 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "react",
+    "typescript",
+    "unicorn",
+    "oxc",
+    "import"
+  ],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "perf": "warn"
+  },
+  "env": {
+    "browser": true,
+    "es2024": true
+  },
+  "ignorePatterns": [
+    "dist",
+    "src/routeTree.gen.ts"
+  ],
+  "rules": {
+    "no-console": "error",
+    "eqeqeq": "error",
+    "typescript/no-explicit-any": "error",
+    "typescript/consistent-type-imports": "error",
+    "unicorn/filename-case": [
+      "error",
+      {
+        "case": "kebabCase"
+      }
+    ],
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "react-dom",
+            "importNames": [
+              "createPortal"
+            ],
+            "message": "There is one Modal in this project: src/components/ui/modal.tsx. See CLAUDE.md, Rule 1."
+          },
+          {
+            "name": "clsx",
+            "message": "Use cn() from @/lib/cn, or tv() from @/lib/tv for component variants."
+          },
+          {
+            "name": "tailwind-merge",
+            "message": "Use cn() from @/lib/cn, or tv() from @/lib/tv for component variants."
+          },
+          {
+            "name": "tailwind-variants",
+            "message": "Import tv from @/lib/tv, which is configured for this project's custom tokens."
+          }
+        ],
+        "patterns": [
+          {
+            "group": [
+              "@/api/*",
+              "**/api/*"
+            ],
+            "message": "Components do not talk to src/api/ directly. Go through a hook in src/hooks/. See CLAUDE.md, Rule 3."
+          }
+        ]
+      }
+    ],
+    "react/react-in-jsx-scope": "off",
+    "import/no-unassigned-import": "off"
+  },
+  "overrides": [
+    {
+      "files": [
+        "src/lib/cn.ts",
+        "src/lib/tv.ts"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    },
+    {
+      "files": [
+        "src/api/**",
+        "src/hooks/**"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    },
+    {
+      "files": [
+        "src/routes/**"
+      ],
+      "rules": {
+        "unicorn/filename-case": "off"
+      }
+    }
+  ]
+}

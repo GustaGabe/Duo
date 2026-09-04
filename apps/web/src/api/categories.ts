@@ -1,14 +1,10 @@
 import type { Category, CreateCategoryInput } from '@duo/shared';
 
-import { CURRENT_USER_ID, db, nextId } from './mock-db';
+import { db, nextId } from './mock-db';
 import { mockRequest } from './client';
 
-function visibleTo(userId: string) {
-  return (category: Category) => category.scope === 'shared' || category.ownerId === userId;
-}
-
 export function listCategories(): Promise<Category[]> {
-  return mockRequest(() => db.categories.filter(visibleTo(CURRENT_USER_ID)));
+  return mockRequest(() => db.categories);
 }
 
 export function createCategory(input: CreateCategoryInput): Promise<Category> {

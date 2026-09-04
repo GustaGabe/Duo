@@ -26,7 +26,7 @@ packages/shared   pure domain types shared by both sides (@duo/shared)
 | `pnpm dev` | serve the web app on http://localhost:5173 |
 | `pnpm build` | production build |
 | `pnpm typecheck` | `tsc --noEmit` across all packages |
-| `pnpm lint` | ESLint |
+| `pnpm lint` | oxlint, then ESLint for the project guards |
 | `pnpm format` | Prettier |
 
 `pnpm typecheck && pnpm lint && pnpm build` must be green before every commit.
@@ -36,8 +36,29 @@ packages/shared   pure domain types shared by both sides (@duo/shared)
 ## Rule 1 — build one flexible component, not a family of near-duplicates
 
 This is the principle the whole codebase is organised around. When two screens need almost the same
-thing, that is **one component with props**, not two components. Variants come from a lookup map at
-the top of the file, never from `if` branches scattered through JSX.
+thing, that is **one component with props**, not two components. Variants are declared with
+`tailwind-variants` at the top of the file, never as `if` branches scattered through JSX:
+
+```tsx
+import { tv, type VariantProps } from '@/lib/tv';
+
+export const button = tv({
+  base: 'inline-flex cursor-pointer items-center justify-center …',
+  variants: {
+    variant: { primary: 'bg-primary text-on-primary …', action: 'bg-accent …' },
+    size: { lg: 'h-15 rounded-panel …', md: 'h-13 rounded-field …' },
+    block: { true: 'w-full' },
+  },
+  defaultVariants: { variant: 'primary', size: 'md' },
+});
+
+export type ButtonVariants = VariantProps<typeof button>;
+```
+
+Always import `tv` from `@/lib/tv`, never from `tailwind-variants` directly — the local one is
+configured to recognise this project's custom `text-*` size tokens. Without that config
+`tailwind-merge` mistakes `text-body` for a colour and silently drops `text-on-primary`.
+Multi-part components use `slots` (see `Modal`, `AmountDisplay`).
 
 Before writing any component, look for it in `src/components/ui/` (generic) or
 `src/components/finance/` (domain). If something close already exists, give it a prop.
@@ -67,7 +88,6 @@ Its props are what make it fit every case, so a second one is never needed:
 | `size` | `sm` / `md` / `lg` / `full` |
 | `title`, `description` | the standard header |
 | `hideHeader` | content that draws its own top |
-| `aside` | the desktop side column, which stacks under the content on mobile |
 | `footer` | pinned action bar |
 | `children` | everything else |
 
@@ -134,11 +154,21 @@ render time, with `formatBRL` from `src/lib/format.ts`.
 - **Strict TypeScript**: no `any`, no `@ts-ignore`. Domain types come from `@duo/shared`.
 - **No comments in code.** Names, types and small functions carry the meaning. If a line needs a
   comment to be understood, rewrite the line. Documentation lives here, in CLAUDE.md.
-- **Language**: code, docs and commit messages in English. Everything the user reads on screen is
-  Brazilian Portuguese (pt-BR) — it's a Brazilian product.
+- **Language**: everything in code is English — component names, variables, types, file names,
+  route paths, docs and commit messages. The *only* Portuguese in the repo is text a user actually
+  reads on screen, plus the seed content that stands in for it.
 - **44px minimum touch target** on anything tappable; it's in the design system.
 - **Accessibility**: every control has an accessible name; selected state uses `aria-pressed` or
   `aria-current`, not colour alone.
+
+### Linting
+
+`oxlint` is the main linter: fast, and it owns correctness, style and the import guards
+(no `createPortal`, no reaching into `src/api/` from a component, no importing `clsx` /
+`tailwind-merge` / `tailwind-variants` directly). Config lives in `apps/web/.oxlintrc.json`.
+
+ESLint stays for the two guards oxlint cannot express, both of which need AST selectors: literal
+hex colour anywhere outside `globals.css`, and modal chrome outside `components/ui/modal.tsx`.
 
 ### Commits
 

@@ -21,7 +21,9 @@ function byDateDesc(a: Transaction, b: Transaction): number {
 
 export function listTransactions(query: TransactionQuery = {}): Promise<Transaction[]> {
   return mockRequest(() => {
-    const rows = db.transactions.filter((transaction) => matches(transaction, query)).sort(byDateDesc);
+    const rows = db.transactions
+      .filter((transaction) => matches(transaction, query))
+      .toSorted(byDateDesc);
     return query.limit ? rows.slice(0, query.limit) : rows;
   });
 }

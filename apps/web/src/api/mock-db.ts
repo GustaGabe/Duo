@@ -1,5 +1,7 @@
 import type { Category, Couple, Transaction, User } from '@duo/shared';
 
+import { CURRENT_MONTH, TODAY } from '@/lib/clock';
+
 export const ANA: User = {
   id: 'usr_ana',
   name: 'Ana Ribeiro',
@@ -18,8 +20,9 @@ export const LEO: User = {
 
 export const CURRENT_USER_ID = ANA.id;
 
-export const TODAY = '2026-09-04';
-export const CURRENT_MONTH = '2026-09';
+export { CURRENT_MONTH, TODAY };
+
+
 
 interface Database {
   couple: Couple;
@@ -117,9 +120,9 @@ const categories: Category[] = [
     ownerId: ANA.id,
   },
   {
-    id: 'cat_pets',
-    name: 'Pets',
-    tag: 'PT',
+    id: 'cat_pessoal_leo',
+    name: 'Pessoal Léo',
+    tag: 'PL',
     description: 'Só aparece para o Léo',
     kind: 'expense',
     color: 'violet',
@@ -160,9 +163,9 @@ const seed: Seed[] = [
   ['Padaria', 2_360, 'cat_mercado', ANA.id, '2026-09-01', 'payer'],
   ['Estacionamento', 1_800, 'cat_transporte', ANA.id, '2026-09-03', 'payer'],
   ['Assinatura de streaming', 3_990, 'cat_lazer', ANA.id, '2026-09-01', 'payer', 'expense', true],
-  ['Ração do gato', 795, 'cat_pets', ANA.id, '2026-09-02', 'payer'],
+  ['Ração do gato', 795, 'cat_pessoal_ana', ANA.id, '2026-09-02', 'payer'],
 
-  ['Café perto do escritório', 1_650, 'cat_lazer', LEO.id, '2026-09-04', 'payer'],
+  ['Café perto do escritório', 1_650, 'cat_pessoal_leo', LEO.id, '2026-09-04', 'payer'],
   ['Ônibus', 940, 'cat_transporte', LEO.id, '2026-09-03', 'payer'],
   ['Pão na padaria', 1_280, 'cat_mercado', LEO.id, '2026-09-02', 'payer'],
   ['Pilhas e lâmpadas', 2_025, 'cat_casa', LEO.id, '2026-09-01', 'payer'],

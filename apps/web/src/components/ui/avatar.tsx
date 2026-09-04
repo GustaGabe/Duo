@@ -1,38 +1,38 @@
 import type { OwnerSlot } from '@duo/shared';
 
-import { cn } from '@/lib/cn';
 import { initials as toInitials } from '@/lib/format';
-import { ownerSurface } from '@/lib/owner';
+import { cn } from '@/lib/cn';
+import { tv, type VariantProps } from '@/lib/tv';
 
-export type AvatarSize = 'sm' | 'md' | 'lg' | 'xl';
+export const avatar = tv({
+  base: 'grid shrink-0 place-items-center rounded-pill font-semibold',
+  variants: {
+    slot: {
+      a: 'bg-owner-a text-on-owner-a',
+      b: 'bg-owner-b text-on-owner-b',
+    },
+    size: {
+      sm: 'size-7 text-micro',
+      md: 'size-8.5 text-label',
+      lg: 'size-9.5 text-label',
+      xl: 'size-16.5 text-stat',
+    },
+    ringed: { true: 'ring-2 ring-surface' },
+  },
+  defaultVariants: { size: 'md' },
+});
 
-const SIZES: Record<AvatarSize, string> = {
-  sm: 'size-7 text-micro',
-  md: 'size-8.5 text-label',
-  lg: 'size-9.5 text-label',
-  xl: 'size-16.5 text-stat',
-};
+export type AvatarVariants = VariantProps<typeof avatar>;
 
-export interface AvatarProps {
+export interface AvatarProps extends AvatarVariants {
   name: string;
   slot: OwnerSlot;
-  size?: AvatarSize;
-  ringed?: boolean;
   className?: string;
 }
 
-export function Avatar({ name, slot, size = 'md', ringed = false, className }: AvatarProps) {
+export function Avatar({ name, slot, size, ringed, className }: AvatarProps) {
   return (
-    <span
-      title={name}
-      className={cn(
-        'grid shrink-0 place-items-center rounded-pill font-semibold',
-        SIZES[size],
-        ownerSurface[slot],
-        ringed && 'ring-2 ring-surface',
-        className,
-      )}
-    >
+    <span title={name} className={avatar({ slot, size, ringed, className })}>
       {toInitials(name)}
     </span>
   );
@@ -40,7 +40,7 @@ export function Avatar({ name, slot, size = 'md', ringed = false, className }: A
 
 export interface AvatarStackProps {
   people: { id: string; name: string; slot: OwnerSlot }[];
-  size?: AvatarSize;
+  size?: AvatarVariants['size'];
   className?: string;
 }
 

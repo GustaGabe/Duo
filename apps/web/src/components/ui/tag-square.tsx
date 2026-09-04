@@ -1,45 +1,48 @@
 import type { CategoryColor } from '@duo/shared';
 
-import { cn } from '@/lib/cn';
+import { tv, type VariantProps } from '@/lib/tv';
 
-export type TagSize = 'sm' | 'md' | 'lg';
+export const tagSquare = tv({
+  base: 'grid shrink-0 place-items-center font-mono font-medium',
+  variants: {
+    color: {
+      accent: 'bg-accent text-on-accent',
+      ink: 'bg-ink text-surface',
+      mist: 'bg-surface-2 text-ink-soft',
+      violet: 'bg-accent/70 text-on-accent',
+      silver: 'bg-surface-3 text-ink-soft',
+    },
+    size: {
+      sm: 'size-9 rounded-control text-micro',
+      md: 'size-11 rounded-field text-caption',
+      lg: 'size-15 rounded-panel text-base',
+    },
+  },
+  defaultVariants: { color: 'mist', size: 'md' },
+});
 
-const SIZES: Record<TagSize, string> = {
-  sm: 'size-9 rounded-control text-micro',
-  md: 'size-11 rounded-field text-caption',
-  lg: 'size-15 rounded-panel text-base',
-};
+export type TagSquareVariants = VariantProps<typeof tagSquare>;
 
-const COLORS: Record<CategoryColor, string> = {
-  accent: 'bg-accent text-on-accent',
-  ink: 'bg-ink text-surface',
-  mist: 'bg-surface-2 text-ink-soft',
-  violet: 'bg-accent/70 text-on-accent',
-  silver: 'bg-surface-3 text-ink-soft',
-};
-
-export interface TagSquareProps {
+export interface TagSquareProps extends TagSquareVariants {
   tag: string;
-  color?: CategoryColor;
-  size?: TagSize;
   className?: string;
 }
 
-export function TagSquare({ tag, color = 'mist', size = 'md', className }: TagSquareProps) {
+export function TagSquare({ tag, color, size, className }: TagSquareProps) {
   return (
-    <span
-      aria-hidden="true"
-      className={cn(
-        'grid shrink-0 place-items-center font-mono font-medium',
-        SIZES[size],
-        COLORS[color],
-        className,
-      )}
-    >
+    <span aria-hidden="true" className={tagSquare({ color, size, className })}>
       {tag}
     </span>
   );
 }
+
+export const colorSwatch = tv({
+  base: 'size-11 cursor-pointer rounded-pill border-[3px] transition-colors',
+  variants: {
+    selected: { true: 'border-ink', false: 'border-surface' },
+  },
+  defaultVariants: { selected: false },
+});
 
 export function ColorSwatch({
   color,
@@ -56,11 +59,7 @@ export function ColorSwatch({
       aria-label={`Cor ${color}`}
       aria-pressed={selected}
       onClick={onSelect}
-      className={cn(
-        'size-11 cursor-pointer rounded-pill border-[3px] transition-colors',
-        COLORS[color],
-        selected ? 'border-ink' : 'border-surface',
-      )}
+      className={colorSwatch({ selected, class: tagSquare({ color, class: 'size-11 rounded-pill' }) })}
     />
   );
 }
