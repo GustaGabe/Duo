@@ -30,7 +30,7 @@ export function DataTable<T>({
   const template = columns.map((column) => column.width).join(' ');
 
   return (
-    <div className={cn('flex min-h-0 flex-col', className)}>
+    <div className={cn('flex min-h-0 w-full min-w-0 flex-col', className)}>
       <div
         className="grid border-b-[1.5px] border-line pb-3 eyebrow"
         style={{ gridTemplateColumns: template }}

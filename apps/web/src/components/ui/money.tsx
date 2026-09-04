@@ -4,7 +4,7 @@ import { formatAmount, formatSigned } from '@/lib/format';
 import { tv, type VariantProps } from '@/lib/tv';
 
 export const money = tv({
-  base: 'tabular font-semibold',
+  base: 'tabular font-semibold whitespace-nowrap',
   variants: {
     kind: { expense: 'text-ink', income: 'text-positive' },
   },

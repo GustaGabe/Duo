@@ -113,7 +113,7 @@ function Lancamentos() {
         ))}
       </div>
 
-      <Card className="hidden min-h-0 flex-1 lg:flex lg:p-5.5">
+      <Card className="hidden min-h-0 flex-1 flex-col lg:flex lg:p-5.5">
         <DataTable columns={columns} rows={transactions} getRowKey={(row) => row.id} />
       </Card>
 
