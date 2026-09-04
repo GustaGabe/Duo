@@ -1,55 +1,54 @@
 /**
- * Contratos de domínio do Duo.
+ * Duo domain contracts.
  *
- * Este pacote é só tipos — nenhum runtime, nenhuma dependência. O `apps/web` usa hoje com dados
- * mock e o `apps/api` (NestJS) vai usar os mesmos tipos depois, para que os dois lados nunca
- * discordem sobre a forma dos dados.
+ * Types only — no runtime, no dependencies. `apps/web` uses them today against mock data and
+ * `apps/api` (NestJS) will reuse them later, so the two sides can never disagree about shape.
  *
- * Valores monetários são SEMPRE inteiros em centavos (`…Cents`). Nunca `number` em reais, nunca
- * string formatada — a formatação é responsabilidade da camada de apresentação.
+ * Money is ALWAYS an integer in cents (`…Cents`). Never a float in reais, never a formatted
+ * string — formatting belongs to the presentation layer.
  */
 
-/** Identificador opaco. */
+/** Opaque identifier. */
 export type Id = string;
 
-/** Data no formato ISO `YYYY-MM-DD`. */
+/** ISO date, `YYYY-MM-DD`. */
 export type IsoDate = string;
 
-/** Mês de referência no formato `YYYY-MM`. */
+/** Reference month, `YYYY-MM`. */
 export type IsoMonth = string;
 
 /**
- * Slot do dono dentro do casal. O design dá uma cor fixa para cada slot:
- * `a` é o azul da marca, `b` é o preto (que vira branco no modo escuro).
- * Ficar em slot em vez de "cor" mantém a semântica no tema certo.
+ * Which half of the couple owns something. The design fixes a colour per slot: `a` is the brand
+ * blue, `b` is black — and black becomes white in dark mode. Storing the slot rather than the
+ * colour is what keeps the couple legible in both themes.
  */
 export type OwnerSlot = 'a' | 'b';
 
-/** Natureza do lançamento. */
+/** What kind of entry this is. */
 export type TransactionKind = 'expense' | 'income';
 
-/** Quem carrega o valor do lançamento. */
+/** Who carries the value of the entry. */
 export type SplitMode =
-  /** Fica todo no nome de quem pagou. */
+  /** Stays entirely with whoever paid. */
   | 'payer'
-  /** Dividido meio a meio entre os dois. */
+  /** Split evenly between the two. */
   | 'equal';
 
-/** Quem enxerga a categoria. */
+/** Who can see the category. */
 export type CategoryScope =
-  /** Aparece no painel dos dois. */
+  /** Shows up on both dashboards. */
   | 'shared'
-  /** Aparece só para quem criou. */
+  /** Only visible to whoever created it. */
   | 'private';
 
-/** Chave de cor da categoria — resolvida para um token de tema na UI. */
+/** Category colour key — resolved to a theme token in the UI. */
 export type CategoryColor = 'accent' | 'ink' | 'mist' | 'violet' | 'silver';
 
 export interface User {
   id: Id;
   name: string;
   email: string;
-  /** Iniciais mostradas no avatar. Derivadas do nome, mas guardadas para o casal poder ajustar. */
+  /** Initials shown on the avatar. Derived from the name, but stored so it can be overridden. */
   initials: string;
   slot: OwnerSlot;
 }
@@ -63,7 +62,7 @@ export interface CoupleInvite {
 
 export interface Couple {
   id: Id;
-  /** Código curto de convite, ex.: `DUO-4F92`. */
+  /** Short invite code, e.g. `DUO-4F92`. */
   code: string;
   members: User[];
   invites: CoupleInvite[];
@@ -72,16 +71,16 @@ export interface Couple {
 export interface Category {
   id: Id;
   name: string;
-  /** Sigla de duas letras mostrada no quadradinho, ex.: `MC`. */
+  /** Two-letter badge shown in the square tile, e.g. `MC`. */
   tag: string;
-  /** Linha de apoio na lista, ex.: "Compras da semana". */
+  /** Supporting line in the list, e.g. "Compras da semana". */
   description: string;
   kind: TransactionKind;
   color: CategoryColor;
-  /** Limite mensal em centavos, ou `null` quando a categoria não tem teto. */
+  /** Monthly cap in cents, or `null` when the category has no cap. */
   monthlyLimitCents: number | null;
   scope: CategoryScope;
-  /** Preenchido apenas quando `scope === 'private'`. */
+  /** Only set when `scope === 'private'`. */
   ownerId: Id | null;
 }
 
@@ -91,34 +90,34 @@ export interface Transaction {
   description: string;
   amountCents: number;
   categoryId: Id;
-  /** Quem pagou (saída) ou recebeu (entrada). */
+  /** Who paid (expense) or received (income). */
   payerId: Id;
   split: SplitMode;
   date: IsoDate;
-  /** Se repete todo mês. */
+  /** Repeats every month. */
   recurring: boolean;
   createdAt: string;
 }
 
-/** Quanto cada pessoa movimentou no mês. */
+/** How much each person moved during the month. */
 export interface PersonSummary {
   userId: Id;
   spentCents: number;
-  /** Fatia do total de saídas, de 0 a 100. */
+  /** Share of total expenses, 0 to 100. */
   sharePercent: number;
   transactionCount: number;
 }
 
-/** Quanto foi gasto por categoria no mês. */
+/** How much was spent per category during the month. */
 export interface CategorySummary {
   categoryId: Id;
   spentCents: number;
   limitCents: number | null;
-  /** Uso do limite, de 0 a 100. `null` quando não há limite. */
+  /** Cap usage, 0 to 100. `null` when there is no cap. */
   usagePercent: number | null;
 }
 
-/** Quem deve para quem, considerando só os lançamentos divididos. */
+/** Who owes whom, counting only the entries marked as split. */
 export interface Settlement {
   fromUserId: Id;
   toUserId: Id;
@@ -136,7 +135,7 @@ export interface MonthSummary {
   settlement: Settlement | null;
 }
 
-/** Filtro de dono usado nos chips do painel. */
+/** Owner filter behind the dashboard chips. */
 export type OwnerFilter = 'all' | Id;
 
 export interface TransactionQuery {
@@ -147,8 +146,8 @@ export interface TransactionQuery {
   limit?: number;
 }
 
-/** Payload de criação de lançamento — o `id` e o `createdAt` são do servidor. */
+/** Create payload — `id` and `createdAt` come from the server. */
 export type CreateTransactionInput = Omit<Transaction, 'id' | 'createdAt'>;
 
-/** Payload de criação de categoria. */
+/** Category create payload. */
 export type CreateCategoryInput = Omit<Category, 'id'>;

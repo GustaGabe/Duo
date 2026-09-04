@@ -1,0 +1,44 @@
+{
+  "name": "@duo/web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@duo/shared": "workspace:*",
+    "@fontsource/ibm-plex-mono": "^5.2.7",
+    "@fontsource/poppins": "^5.2.6",
+    "@tanstack/react-query": "^5.90.2",
+    "@tanstack/react-router": "^1.132.0",
+    "clsx": "^2.1.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "tailwind-merge": "^3.3.1",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.37.0",
+    "@tailwindcss/vite": "^4.1.14",
+    "@tanstack/react-query-devtools": "^5.90.2",
+    "@tanstack/router-devtools": "^1.132.0",
+    "@tanstack/router-plugin": "^1.132.0",
+    "@types/node": "^26.4.1",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.0.4",
+    "eslint": "^9.37.0",
+    "eslint-plugin-react-hooks": "^6.1.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.4.0",
+    "tailwindcss": "^4.1.14",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.0",
+    "vite": "^7.1.9"
+  }
+}

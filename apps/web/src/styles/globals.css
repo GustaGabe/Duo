@@ -1,0 +1,279 @@
+@import 'tailwindcss';
+
+@import '@fontsource/poppins/400.css';
+@import '@fontsource/poppins/500.css';
+@import '@fontsource/poppins/600.css';
+@import '@fontsource/poppins/700.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+
+/*
+ * The ONLY file in the project where literal colour is allowed.
+ * Components use only the semantic tokens defined here. See CLAUDE.md, Rule 2.
+ */
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* ------------------------------------------------------------------------- *
+ * Primitive palette — lifted from the "system design" and "tokens dark" artboards.
+ * Never used directly in a component; it only feeds the semantic tokens below.
+ * ------------------------------------------------------------------------- */
+:root {
+  --p-blue-600: #1b1fe5;
+  --p-blue-800: #1417b8;
+  --p-blue-500: #4b4fff;
+  --p-blue-400: #6a6dff;
+  --p-blue-300: #8a8dff;
+
+  --p-ink-900: #0a0a0b;
+  --p-ink-600: #35353a;
+  --p-ink-400: #6b6b73;
+  --p-ink-300: #9a9aa3;
+
+  --p-silver-300: #c6c6ce;
+  --p-silver-200: #d6d6de;
+  --p-line-200: #e4e4e9;
+  --p-mist-200: #ededf2;
+  --p-mist-100: #f4f4f6;
+  --p-mist-050: #f0f0f3;
+  --p-white: #ffffff;
+
+  --p-night-000: #0b0b0f;
+  --p-night-100: #0f0f14;
+  --p-night-200: #17171e;
+  --p-night-300: #23232c;
+  --p-night-line: #26262f;
+  --p-night-hair: #3a3a46;
+  --p-night-400: #4b4b57;
+  --p-night-text: #f4f4f6;
+  --p-night-strong: #b9b9c2;
+  --p-night-muted: #8b8b95;
+  --p-night-subtle: #6b6b73;
+}
+
+/* ------------------------------------------------------------------------- *
+ * Semantic tokens — what components actually use.
+ * ------------------------------------------------------------------------- */
+@theme {
+  /* Surfaces */
+  --color-canvas: var(--p-mist-100);
+  --color-surface: var(--p-white);
+  --color-surface-2: var(--p-mist-100);
+  --color-surface-3: var(--p-mist-200);
+
+  /* Strokes */
+  --color-line: var(--p-line-200);
+  --color-line-soft: var(--p-mist-050);
+  --color-line-dashed: var(--p-silver-200);
+
+  /* Text */
+  --color-ink: var(--p-ink-900);
+  --color-ink-soft: var(--p-ink-600);
+  --color-muted: var(--p-ink-400);
+  --color-subtle: var(--p-ink-300);
+
+  /* Brand / action */
+  --color-accent: var(--p-blue-600);
+  --color-accent-strong: var(--p-blue-800);
+  --color-on-accent: var(--p-white);
+  --color-positive: var(--p-blue-600);
+
+  /* Primary button: black in light, blue in dark (the design's rule) */
+  --color-primary: var(--p-ink-900);
+  --color-primary-hover: var(--p-blue-600);
+  --color-on-primary: var(--p-white);
+
+  /* Inverted surfaces: sidebar, bottom nav, settlement card */
+  --color-invert: var(--p-ink-900);
+  --color-invert-2: #1c1c1f;
+  --color-on-invert: var(--p-white);
+  --color-on-invert-muted: #9d9da4;
+
+  /* Entry owner — Ana is slot A, Léo is slot B */
+  --color-owner-a: var(--p-blue-600);
+  --color-on-owner-a: var(--p-white);
+  --color-owner-b: var(--p-ink-900);
+  --color-on-owner-b: var(--p-white);
+
+  /* States */
+  --color-disabled: var(--p-mist-200);
+  --color-on-disabled: var(--p-ink-300);
+
+  /* Typography */
+  --font-sans: Poppins, ui-sans-serif, system-ui, Helvetica, Arial, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --text-hero: 2.875rem;
+  --text-hero--line-height: 1;
+  --text-hero--letter-spacing: -0.03em;
+  --text-hero--font-weight: 700;
+
+  --text-money: 2.5rem;
+  --text-money--line-height: 1;
+  --text-money--letter-spacing: -0.03em;
+  --text-money--font-weight: 700;
+
+  --text-stat: 1.375rem;
+  --text-stat--line-height: 1.2;
+  --text-stat--letter-spacing: -0.02em;
+  --text-stat--font-weight: 600;
+
+  --text-amount: 1.1875rem;
+  --text-amount--line-height: 1.2;
+  --text-amount--font-weight: 600;
+
+  --text-display: 2.75rem;
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.03em;
+  --text-display--font-weight: 700;
+
+  --text-title: 2rem;
+  --text-title--line-height: 1.1;
+  --text-title--letter-spacing: -0.02em;
+  --text-title--font-weight: 700;
+
+  --text-heading: 1.625rem;
+  --text-heading--line-height: 1.15;
+  --text-heading--letter-spacing: -0.02em;
+  --text-heading--font-weight: 700;
+
+  --text-section: 1.0625rem;
+  --text-section--line-height: 1.3;
+  --text-section--font-weight: 600;
+
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.45;
+
+  --text-label: 0.8125rem;
+  --text-label--line-height: 1.4;
+
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.45;
+
+  --text-micro: 0.6875rem;
+  --text-micro--line-height: 1.4;
+
+  --text-nano: 0.625rem;
+  --text-nano--line-height: 1.4;
+
+  /* Shape — 4pt grid, design-system radii */
+  --radius-control: 12px;
+  --radius-field: 14px;
+  --radius-panel: 16px;
+  --radius-card: 20px;
+  --radius-modal: 24px;
+  --radius-sheet: 32px;
+  --radius-phone: 44px;
+  --radius-pill: 999px;
+
+  /* Elevation */
+  --shadow-float: 0 30px 60px rgb(0 0 0 / 0.22);
+  --shadow-focus: 0 0 0 4px rgb(27 31 229 / 0.1);
+  --shadow-card: 0 1px 2px rgb(10 10 11 / 0.04);
+
+  /* Design-system minimum touch target */
+  --spacing-touch: 2.75rem;
+}
+
+/* ------------------------------------------------------------------------- *
+ * Dark mode.
+ * The design states the rule: blue 600 -> blue 500, ink 900 -> white, and surfaces step up in
+ * layers instead of using shadow. Only tokens change; no component needs a `dark:` class.
+ * ------------------------------------------------------------------------- */
+[data-theme='dark'] {
+  --color-canvas: var(--p-night-000);
+  --color-surface: var(--p-night-100);
+  --color-surface-2: var(--p-night-200);
+  --color-surface-3: var(--p-night-300);
+
+  --color-line: var(--p-night-line);
+  --color-line-soft: var(--p-night-line);
+  --color-line-dashed: var(--p-night-hair);
+
+  --color-ink: var(--p-night-text);
+  --color-ink-soft: var(--p-night-strong);
+  --color-muted: var(--p-night-muted);
+  --color-subtle: var(--p-night-subtle);
+
+  --color-accent: var(--p-blue-500);
+  --color-accent-strong: var(--p-blue-400);
+  --color-on-accent: var(--p-white);
+  --color-positive: var(--p-blue-300);
+
+  --color-primary: var(--p-blue-500);
+  --color-primary-hover: var(--p-blue-400);
+  --color-on-primary: var(--p-white);
+
+  --color-invert: var(--p-night-200);
+  --color-invert-2: var(--p-night-300);
+  --color-on-invert: var(--p-night-text);
+  --color-on-invert-muted: var(--p-night-subtle);
+
+  --color-owner-a: var(--p-blue-500);
+  --color-on-owner-a: var(--p-white);
+  --color-owner-b: var(--p-night-text);
+  --color-on-owner-b: var(--p-night-000);
+
+  --color-disabled: var(--p-night-300);
+  --color-on-disabled: var(--p-night-subtle);
+
+  --shadow-float: 0 30px 60px rgb(0 0 0 / 0.5);
+  --shadow-focus: 0 0 0 4px rgb(75 79 255 / 0.18);
+  --shadow-card: none;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+    color-scheme: light;
+  }
+
+  [data-theme='dark'] {
+    color-scheme: dark;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* Tabular figures on every money value keep columns aligned. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer utilities {
+  /* Uppercase mono label used as a section header throughout the design. */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-subtle);
+  }
+
+  /* Room for the floating bottom bar on mobile. */
+  .pb-nav {
+    padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+  }
+}
