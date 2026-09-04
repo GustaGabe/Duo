@@ -10,7 +10,6 @@ const SIZES: Record<TagSize, string> = {
   lg: 'size-15 rounded-panel text-base',
 };
 
-/** Category colours. Keys come from the domain; values are theme tokens. */
 const COLORS: Record<CategoryColor, string> = {
   accent: 'bg-accent text-on-accent',
   ink: 'bg-ink text-surface',
@@ -20,14 +19,12 @@ const COLORS: Record<CategoryColor, string> = {
 };
 
 export interface TagSquareProps {
-  /** Two-letter badge, e.g. `MC`. */
   tag: string;
   color?: CategoryColor;
   size?: TagSize;
   className?: string;
 }
 
-/** Square tile carrying the category badge — present in every entry list. */
 export function TagSquare({ tag, color = 'mist', size = 'md', className }: TagSquareProps) {
   return (
     <span
@@ -44,7 +41,6 @@ export function TagSquare({ tag, color = 'mist', size = 'md', className }: TagSq
   );
 }
 
-/** Circular swatch in the category colour picker. */
 export function ColorSwatch({
   color,
   selected,

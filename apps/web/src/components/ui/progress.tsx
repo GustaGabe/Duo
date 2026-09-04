@@ -2,15 +2,12 @@ import { cn } from '@/lib/cn';
 import { percentWidth } from '@/lib/format';
 
 export interface ProgressProps {
-  /** 0 to 100. */
   value: number;
   label: string;
-  /** Colour class for the filled bar — use a token (`bg-accent`, `bg-owner-b`…). */
   barClassName?: string;
   className?: string;
 }
 
-/** Usage bar: track on the soft surface, fill from a token. */
 export function Progress({ value, label, barClassName = 'bg-accent', className }: ProgressProps) {
   return (
     <div
@@ -27,13 +24,11 @@ export function Progress({ value, label, barClassName = 'bg-accent', className }
 }
 
 export interface SplitBarProps {
-  /** Slot A's share, 0 to 100. The remainder goes to slot B. */
   sharePercent: number;
   label: string;
   className?: string;
 }
 
-/** The "quem gastou" bar: two slices with a 3px gap between them, as in the design. */
 export function SplitBar({ sharePercent, label, className }: SplitBarProps) {
   return (
     <div

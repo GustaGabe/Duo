@@ -17,7 +17,6 @@ export interface AvatarProps {
   name: string;
   slot: OwnerSlot;
   size?: AvatarSize;
-  /** Ring in the background colour, used when avatars overlap. */
   ringed?: boolean;
   className?: string;
 }
@@ -45,7 +44,6 @@ export interface AvatarStackProps {
   className?: string;
 }
 
-/** Overlapping avatars from the dashboard header (-10px overlap, as in the design). */
 export function AvatarStack({ people, size = 'md', className }: AvatarStackProps) {
   return (
     <div className={cn('flex items-center', className)}>

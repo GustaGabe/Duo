@@ -2,7 +2,6 @@ import type { ComponentProps, ReactNode } from 'react';
 
 import { cn } from '@/lib/cn';
 
-/** Loading block shaped like the content that will replace it. */
 export function Skeleton({ className, ...props }: ComponentProps<'div'>) {
   return <div className={cn('animate-pulse rounded-panel bg-surface-2', className)} {...props} />;
 }
@@ -25,13 +24,11 @@ export function EmptyState({ title, description, action, className }: EmptyState
 }
 
 export interface StepperProps {
-  /** Current step, 1-based. */
   current: number;
   total: number;
   className?: string;
 }
 
-/** Sign-up progress track ("passo 1 de 2"). */
 export function Stepper({ current, total, className }: StepperProps) {
   return (
     <div
@@ -52,7 +49,6 @@ export function Stepper({ current, total, className }: StepperProps) {
   );
 }
 
-/** Uppercase mono label that opens sections and table columns. */
 export function Eyebrow({ className, ...props }: ComponentProps<'p'>) {
   return <p className={cn('eyebrow', className)} {...props} />;
 }

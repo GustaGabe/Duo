@@ -4,7 +4,6 @@ import { cn } from '@/lib/cn';
 
 export type ChipTone = 'ink' | 'accent' | 'owner-a' | 'owner-b';
 
-/** Chip colours when selected. Unselected chips all share the neutral outline. */
 const SELECTED: Record<ChipTone, string> = {
   ink: 'border-ink bg-ink text-surface',
   accent: 'border-accent bg-accent text-on-accent',
@@ -17,10 +16,6 @@ export interface ChipProps extends Omit<ComponentProps<'button'>, 'aria-pressed'
   tone?: ChipTone;
 }
 
-/**
- * Filter pill (Todas / Saídas / Entradas, Ambos / Ana / Léo).
- * Selection is announced through `aria-pressed`, not colour alone.
- */
 export function Chip({ selected = false, tone = 'ink', className, ...props }: ChipProps) {
   return (
     <button

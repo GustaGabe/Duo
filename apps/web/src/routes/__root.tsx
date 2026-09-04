@@ -1,20 +1,12 @@
 import { Outlet, createRootRoute } from '@tanstack/react-router';
 
-import { ModalRoot } from '@/components/modal/modal-root';
-
 export const Route = createRootRoute({
   component: RootLayout,
   notFoundComponent: NotFound,
 });
 
 function RootLayout() {
-  return (
-    <>
-      <Outlet />
-      {/* The app's only modal instance. See CLAUDE.md, Rule 1. */}
-      <ModalRoot />
-    </>
-  );
+  return <Outlet />;
 }
 
 function NotFound() {

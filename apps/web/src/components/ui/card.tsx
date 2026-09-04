@@ -15,7 +15,6 @@ export interface CardProps extends ComponentProps<'div'> {
   tone?: CardTone;
 }
 
-/** Design card: radius 20, padding 16–20, 1.5px outline when neutral. */
 export function Card({ tone = 'plain', className, ...props }: CardProps) {
   return <div className={cn('rounded-card p-5', TONES[tone], className)} {...props} />;
 }

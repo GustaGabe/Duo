@@ -2,10 +2,6 @@ import type { ComponentProps } from 'react';
 
 import { cn } from '@/lib/cn';
 
-/**
- * Design-system button. The variants come straight from the "08 · system design" artboard:
- * primary (black, hover blue), action (blue), secondary (outline) and disabled.
- */
 export type ButtonVariant = 'primary' | 'action' | 'secondary' | 'ghost' | 'subtle' | 'invert';
 export type ButtonSize = 'lg' | 'md' | 'sm' | 'icon';
 
@@ -28,7 +24,6 @@ const SIZES: Record<ButtonSize, string> = {
 export interface ButtonProps extends ComponentProps<'button'> {
   variant?: ButtonVariant;
   size?: ButtonSize;
-  /** Fills the available width — the CTA on mobile screens. */
   block?: boolean;
 }
 

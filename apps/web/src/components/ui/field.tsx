@@ -3,7 +3,6 @@ import { useId } from 'react';
 
 import { cn } from '@/lib/cn';
 
-/** Field label: 12px, weight 500. Identical across every screen in the design. */
 export function Label({ className, ...props }: ComponentProps<'label'>) {
   return <label className={cn('block text-caption font-medium text-ink-soft', className)} {...props} />;
 }
@@ -16,7 +15,6 @@ export interface FieldProps {
   children: (id: string) => ReactNode;
 }
 
-/** Groups label + control + message, wiring `id`/`htmlFor` on its own. */
 export function Field({ label, hint, error, className, children }: FieldProps) {
   const id = useId();
   return (
@@ -32,10 +30,6 @@ export function Field({ label, hint, error, className, children }: FieldProps) {
   );
 }
 
-/**
- * Text field: 56px tall on mobile, 52 on desktop, radius 14, and the design's `0 0 0 4px`
- * focus ring (token `--shadow-focus`).
- */
 export function Input({ className, ...props }: ComponentProps<'input'>) {
   return (
     <input
@@ -51,7 +45,6 @@ export function Input({ className, ...props }: ComponentProps<'input'>) {
   );
 }
 
-/** Same frame as `Input`, for when the content isn't an `<input>`. */
 export function FieldBox({ className, ...props }: ComponentProps<'div'>) {
   return (
     <div

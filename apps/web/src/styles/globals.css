@@ -7,17 +7,8 @@
 @import '@fontsource/ibm-plex-mono/400.css';
 @import '@fontsource/ibm-plex-mono/500.css';
 
-/*
- * The ONLY file in the project where literal colour is allowed.
- * Components use only the semantic tokens defined here. See CLAUDE.md, Rule 2.
- */
-
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
-/* ------------------------------------------------------------------------- *
- * Primitive palette — lifted from the "system design" and "tokens dark" artboards.
- * Never used directly in a component; it only feeds the semantic tokens below.
- * ------------------------------------------------------------------------- */
 :root {
   --p-blue-600: #1b1fe5;
   --p-blue-800: #1417b8;
@@ -51,55 +42,43 @@
   --p-night-subtle: #6b6b73;
 }
 
-/* ------------------------------------------------------------------------- *
- * Semantic tokens — what components actually use.
- * ------------------------------------------------------------------------- */
 @theme {
-  /* Surfaces */
   --color-canvas: var(--p-mist-100);
   --color-surface: var(--p-white);
   --color-surface-2: var(--p-mist-100);
   --color-surface-3: var(--p-mist-200);
 
-  /* Strokes */
   --color-line: var(--p-line-200);
   --color-line-soft: var(--p-mist-050);
   --color-line-dashed: var(--p-silver-200);
 
-  /* Text */
   --color-ink: var(--p-ink-900);
   --color-ink-soft: var(--p-ink-600);
   --color-muted: var(--p-ink-400);
   --color-subtle: var(--p-ink-300);
 
-  /* Brand / action */
   --color-accent: var(--p-blue-600);
   --color-accent-strong: var(--p-blue-800);
   --color-on-accent: var(--p-white);
   --color-positive: var(--p-blue-600);
 
-  /* Primary button: black in light, blue in dark (the design's rule) */
   --color-primary: var(--p-ink-900);
   --color-primary-hover: var(--p-blue-600);
   --color-on-primary: var(--p-white);
 
-  /* Inverted surfaces: sidebar, bottom nav, settlement card */
   --color-invert: var(--p-ink-900);
   --color-invert-2: #1c1c1f;
   --color-on-invert: var(--p-white);
   --color-on-invert-muted: #9d9da4;
 
-  /* Entry owner — Ana is slot A, Léo is slot B */
   --color-owner-a: var(--p-blue-600);
   --color-on-owner-a: var(--p-white);
   --color-owner-b: var(--p-ink-900);
   --color-on-owner-b: var(--p-white);
 
-  /* States */
   --color-disabled: var(--p-mist-200);
   --color-on-disabled: var(--p-ink-300);
 
-  /* Typography */
   --font-sans: Poppins, ui-sans-serif, system-ui, Helvetica, Arial, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
@@ -156,7 +135,6 @@
   --text-nano: 0.625rem;
   --text-nano--line-height: 1.4;
 
-  /* Shape — 4pt grid, design-system radii */
   --radius-control: 12px;
   --radius-field: 14px;
   --radius-panel: 16px;
@@ -166,20 +144,13 @@
   --radius-phone: 44px;
   --radius-pill: 999px;
 
-  /* Elevation */
   --shadow-float: 0 30px 60px rgb(0 0 0 / 0.22);
   --shadow-focus: 0 0 0 4px rgb(27 31 229 / 0.1);
   --shadow-card: 0 1px 2px rgb(10 10 11 / 0.04);
 
-  /* Design-system minimum touch target */
   --spacing-touch: 2.75rem;
 }
 
-/* ------------------------------------------------------------------------- *
- * Dark mode.
- * The design states the rule: blue 600 -> blue 500, ink 900 -> white, and surfaces step up in
- * layers instead of using shadow. Only tokens change; no component needs a `dark:` class.
- * ------------------------------------------------------------------------- */
 [data-theme='dark'] {
   --color-canvas: var(--p-night-000);
   --color-surface: var(--p-night-100);
@@ -256,14 +227,12 @@
     outline-offset: 2px;
   }
 
-  /* Tabular figures on every money value keep columns aligned. */
   .tabular {
     font-variant-numeric: tabular-nums;
   }
 }
 
 @layer utilities {
-  /* Uppercase mono label used as a section header throughout the design. */
   .eyebrow {
     font-family: var(--font-mono);
     font-size: var(--text-micro);
@@ -272,7 +241,6 @@
     color: var(--color-subtle);
   }
 
-  /* Room for the floating bottom bar on mobile. */
   .pb-nav {
     padding-bottom: calc(7rem + env(safe-area-inset-bottom));
   }

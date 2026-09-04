@@ -7,7 +7,6 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [
-    // Must come before the React plugin so the route tree is generated in time.
     tanstackRouter({ target: 'react', autoCodeSplitting: true }),
     react(),
     tailwindcss(),

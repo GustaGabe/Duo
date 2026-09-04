@@ -9,13 +9,11 @@ export interface SegmentedProps<T extends string> {
   options: SegmentedOption<T>[];
   value: T;
   onChange: (value: T) => void;
-  /** `pill` is the Saída/Entrada toggle; `block` is the button pair on the category screen. */
   shape?: 'pill' | 'block';
   className?: string;
   'aria-label'?: string;
 }
 
-/** Two- or three-way toggle — one control, used for both Saída/Entrada and Tipo. */
 export function Segmented<T extends string>({
   options,
   value,

@@ -36,60 +36,47 @@ packages/shared   pure domain types shared by both sides (@duo/shared)
 ## Rule 1 — build one flexible component, not a family of near-duplicates
 
 This is the principle the whole codebase is organised around. When two screens need almost the same
-thing, that is **one component with a variant**, not two components. Variants come from a lookup map
-at the top of the file, not from `if` branches scattered through JSX.
+thing, that is **one component with props**, not two components. Variants come from a lookup map at
+the top of the file, never from `if` branches scattered through JSX.
 
 Before writing any component, look for it in `src/components/ui/` (generic) or
-`src/components/finance/` (domain). If something close already exists, extend it.
+`src/components/finance/` (domain). If something close already exists, give it a prop.
 
 ```
-components/ui/        primitives with no domain knowledge (Button, Field, Chip, Switch, Progress…)
-components/modal/     the modal system
+components/ui/        primitives with no domain knowledge (Button, Field, Chip, Modal, Progress…)
 components/layout/    Sidebar, BottomNav, TopBar, PageHeader
 components/finance/   domain pieces (TransactionItem, BalanceHero, CategoryRow, AmountKeypad…)
-modals/               modal content only
 routes/               pages (file-based routing)
 ```
 
 ### Worked example: the modal
 
-The modal is the sharpest illustration of Rule 1, and the reference to copy when you are unsure how
-far to push reuse.
-
-There is no "expense modal", "category modal", "confirm modal". There is **one** component that
-draws overlay and panel, and it adapts along two axes: sheet on mobile → centred dialog from `md` up,
-in four sizes, with an optional side column. That is how "new expense" can be a full-height sheet on
-a phone and a 720px two-column dialog on desktop while being the same component and the same content.
-
-```
-src/components/modal/modal-shell.tsx     the app's only overlay + panel
-src/components/modal/modal-registry.ts   key -> content, size, title
-src/components/modal/modal-store.ts      which modal is open
-src/components/modal/use-modal.ts        typed open/close API
-src/components/modal/modal-root.tsx      mounted once in __root.tsx
-```
-
-Open one from anywhere:
+There is exactly one modal in this project: `src/components/ui/modal.tsx`. It is not a modal system,
+a registry or a store — it is a component with props and `children`, used like any other.
 
 ```tsx
-const { open } = useModal();
-open('transaction-form', { kind: 'expense' });
+<Modal open={open} onClose={() => setOpen(false)} title="Nova despesa" size="lg" footer={<Button block>Salvar</Button>}>
+  {/* whatever this screen needs */}
+</Modal>
 ```
 
-Add a new one:
+Its props are what make it fit every case, so a second one is never needed:
 
-1. Write **only the content** in `src/modals/`. No overlay, no `<dialog>`, no `position: fixed`,
-   no close button — the shell provides all of it. The component receives its props plus `close`.
-2. Register it in `modal-registry.ts` with a key, a size and a title.
-3. Done — `open('your-key', { … })` is now typed.
+| Prop | What it covers |
+|---|---|
+| `size` | `sm` / `md` / `lg` / `full` |
+| `title`, `description` | the standard header |
+| `hideHeader` | content that draws its own top |
+| `aside` | the desktop side column, which stacks under the content on mobile |
+| `footer` | pinned action bar |
+| `children` | everything else |
 
-Never drive a modal with `useState`. ESLint blocks `createPortal`, `<dialog>` and
-`role="dialog"` outside `components/modal/`; if you are fighting that rule, the fix is a new variant
-on `ModalShell`, not a way around it.
+It adapts on its own from a bottom sheet on mobile to a centred dialog from `md` up, and it is built
+on the native `<dialog>`, so focus trap, Esc and the top layer come for free with no library.
 
-Do not install Radix, Headless UI, shadcn/ui or any modal library.
-
----
+If a new screen doesn't fit, add a prop here. Never build a second modal, and never install Radix,
+Headless UI or shadcn/ui. ESLint blocks `createPortal`, `<dialog>` and `role="dialog"` everywhere
+except that one file.
 
 ## Rule 2 — semantic tokens only
 
@@ -145,8 +132,10 @@ render time, with `formatBRL` from `src/lib/format.ts`.
 - **Files** kebab-case (`transaction-item.tsx`). **Components** PascalCase.
 - **Mobile-first**: write the base style for 390px and scale up with `md:` / `lg:`, never the reverse.
 - **Strict TypeScript**: no `any`, no `@ts-ignore`. Domain types come from `@duo/shared`.
-- **Language**: code, comments, docs and commit messages in English. Everything the user reads on
-  screen is Brazilian Portuguese (pt-BR) — it's a Brazilian product.
+- **No comments in code.** Names, types and small functions carry the meaning. If a line needs a
+  comment to be understood, rewrite the line. Documentation lives here, in CLAUDE.md.
+- **Language**: code, docs and commit messages in English. Everything the user reads on screen is
+  Brazilian Portuguese (pt-BR) — it's a Brazilian product.
 - **44px minimum touch target** on anything tappable; it's in the design system.
 - **Accessibility**: every control has an accessible name; selected state uses `aria-pressed` or
   `aria-current`, not colour alone.

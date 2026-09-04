@@ -4,11 +4,8 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
-/**
- * Rules that keep the project's principles from depending on discipline (see CLAUDE.md).
- */
 const ONLY_ONE_MODAL =
-  'Modal chrome may only be drawn in src/components/modal/. Put the content in src/modals/ and register it in modal-registry.ts — ModalShell already provides overlay, focus and dismissal. See CLAUDE.md, Rule 1.';
+  'There is one Modal in this project: src/components/ui/modal.tsx. Use it with props and children instead of building a second one. See CLAUDE.md, Rule 1.';
 
 const NO_RAW_HEX =
   'Literal colour is banned outside src/styles/globals.css. Use a semantic token (bg-surface, text-muted, bg-accent, bg-owner-a…). See CLAUDE.md, Rule 2.';
@@ -57,10 +54,9 @@ export default tseslint.config(
     },
   },
 
-  // Nothing outside components/modal/ may draw a modal.
   {
     files: ['**/*.{ts,tsx}'],
-    ignores: ['src/components/modal/**'],
+    ignores: ['src/components/ui/modal.tsx'],
     rules: {
       'no-restricted-imports': [
         'error',
@@ -95,7 +91,6 @@ export default tseslint.config(
     },
   },
 
-  // The data layer and the hooks are, obviously, allowed to reach src/api/.
   {
     files: ['src/api/**', 'src/hooks/**'],
     rules: { 'no-restricted-imports': 'off' },

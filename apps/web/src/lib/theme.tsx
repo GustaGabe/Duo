@@ -2,8 +2,23 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { THEME_STORAGE_KEY, ThemeContext, type Theme, type ThemeContextValue } from './theme-context';
 
+function readStoredTheme(): string | null {
+  try {
+    return localStorage.getItem(THEME_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function writeTheme(theme: Theme): void {
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  } catch {
+    return;
+  }
+}
+
 function readInitialTheme(): Theme {
-  // index.html already applied the theme before first paint; we just read it back.
   const applied = document.documentElement.dataset.theme;
   if (applied === 'dark' || applied === 'light') return applied;
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -14,22 +29,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    try {
-      localStorage.setItem(THEME_STORAGE_KEY, theme);
-    } catch {
-      // Private browsing or blocked storage: the theme just won't survive the session.
-    }
+    writeTheme(theme);
   }, [theme]);
 
-  // Until someone picks explicitly, follow the system preference.
   useEffect(() => {
-    let chosen = false;
-    try {
-      chosen = localStorage.getItem(THEME_STORAGE_KEY) !== null;
-    } catch {
-      chosen = false;
-    }
-    if (chosen) return;
+    if (readStoredTheme() !== null) return;
 
     const media = window.matchMedia('(prefers-color-scheme: dark)');
     const onChange = (event: MediaQueryListEvent) => setTheme(event.matches ? 'dark' : 'light');

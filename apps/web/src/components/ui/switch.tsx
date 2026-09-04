@@ -4,12 +4,10 @@ export interface SwitchProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
   label: string;
-  /** Hides the visible text when the label already sits next to it. */
   hideLabel?: boolean;
   className?: string;
 }
 
-/** The design system's 46×28 switch. */
 export function Switch({ checked, onChange, label, hideLabel = false, className }: SwitchProps) {
   return (
     <button

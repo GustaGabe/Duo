@@ -8,7 +8,6 @@ export interface CheckboxProps {
   className?: string;
 }
 
-/** 22×22 box, radius 7 — the terms and "keep me signed in" checkbox. */
 export function Checkbox({ checked, onChange, label, hideLabel = false, className }: CheckboxProps) {
   return (
     <button

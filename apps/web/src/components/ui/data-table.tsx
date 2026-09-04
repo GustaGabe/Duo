@@ -5,7 +5,6 @@ import { cn } from '@/lib/cn';
 export interface Column<T> {
   id: string;
   header: string;
-  /** Grid fraction, e.g. `'2.2fr'`. */
   width: string;
   align?: 'left' | 'right';
   render: (row: T) => ReactNode;
@@ -20,10 +19,6 @@ export interface DataTableProps<T> {
   className?: string;
 }
 
-/**
- * CSS-grid table — this is how the design draws its desktop lists.
- * Uppercase mono header, rows separated by a hairline.
- */
 export function DataTable<T>({
   columns,
   rows,
