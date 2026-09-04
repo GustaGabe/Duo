@@ -79,6 +79,8 @@
   --color-disabled: var(--p-mist-200);
   --color-on-disabled: var(--p-ink-300);
 
+  --color-scrim: rgb(10 10 11 / 0.55);
+
   --font-sans: Poppins, ui-sans-serif, system-ui, Helvetica, Arial, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
@@ -187,6 +189,8 @@
 
   --color-disabled: var(--p-night-300);
   --color-on-disabled: var(--p-night-subtle);
+
+  --color-scrim: rgb(0 0 0 / 0.72);
 
   --shadow-float: 0 30px 60px rgb(0 0 0 / 0.5);
   --shadow-focus: 0 0 0 4px rgb(75 79 255 / 0.18);

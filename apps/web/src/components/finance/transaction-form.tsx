@@ -6,10 +6,23 @@ import { Button } from '@/components/ui/button';
 import { Field, Input, Label, Select } from '@/components/ui/field';
 import { Segmented } from '@/components/ui/segmented';
 import { Switch } from '@/components/ui/switch';
-import { cn } from '@/lib/cn';
+import { tv } from '@/lib/tv';
 import { visibleCategories } from '@/lib/category';
 import { digitsToCents, formatAmount, formatBRL } from '@/lib/format';
 import { useCreateTransaction } from '@/hooks/use-transactions';
+
+const payerOption = tv({
+  base: 'h-11.5 cursor-pointer rounded-control border-[1.5px] px-3.5 text-left text-label font-medium transition-colors',
+  variants: {
+    slot: { a: '', b: '' },
+    selected: { true: '', false: 'border-line bg-surface text-ink-soft hover:bg-surface-3' },
+  },
+  compoundVariants: [
+    { slot: 'a', selected: true, class: 'border-owner-a bg-owner-a text-on-owner-a' },
+    { slot: 'b', selected: true, class: 'border-owner-b bg-owner-b text-on-owner-b' },
+  ],
+  defaultVariants: { selected: false },
+});
 
 export interface TransactionFormProps {
   members: User[];
@@ -46,8 +59,14 @@ export function TransactionForm({
   const create = useCreateTransaction();
 
   const payerChoices = [
-    ...members.map((member) => ({ value: member.id, label: member.name.split(' ')[0] ?? member.name })),
-    ...(kind === 'expense' ? [{ value: 'equal' as const, label: 'Dividir 50/50' }] : []),
+    ...members.map((member) => ({
+      value: member.id,
+      label: member.name.split(' ')[0] ?? member.name,
+      slot: member.slot,
+    })),
+    ...(kind === 'expense'
+      ? [{ value: 'equal' as const, label: 'Dividir 50/50', slot: 'a' as const }]
+      : []),
   ];
 
   const splitNote =
@@ -150,11 +169,6 @@ export function TransactionForm({
           </Field>
         </div>
 
-        <AmountKeypad
-          className="md:hidden"
-          onPress={(digit) => setDigits((current) => (current + digit).slice(0, 9))}
-          onDelete={() => setDigits((current) => current.slice(0, -1))}
-        />
       </div>
 
       <div className="flex shrink-0 flex-col gap-3 md:w-65">
@@ -169,12 +183,10 @@ export function TransactionForm({
                 type="button"
                 aria-pressed={payer === choice.value}
                 onClick={() => setPayer(choice.value)}
-                className={cn(
-                  'h-11.5 cursor-pointer rounded-control border-[1.5px] px-3.5 text-left text-label font-medium transition-colors',
-                  payer === choice.value
-                    ? 'border-accent bg-accent text-on-accent'
-                    : 'border-line bg-surface text-ink-soft hover:bg-surface-3',
-                )}
+                className={payerOption({
+                  slot: choice.slot,
+                  selected: payer === choice.value,
+                })}
               >
                 {choice.label}
               </button>
@@ -201,6 +213,12 @@ export function TransactionForm({
           Cancelar
         </button>
       </div>
+
+      <AmountKeypad
+        className="md:hidden"
+        onPress={(digit) => setDigits((current) => (current + digit).slice(0, 9))}
+        onDelete={() => setDigits((current) => current.slice(0, -1))}
+      />
     </form>
   );
 }

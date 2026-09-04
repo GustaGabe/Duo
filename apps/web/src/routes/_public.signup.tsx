@@ -24,8 +24,8 @@ function SignUpPage() {
   const ready = name.trim().length > 1 && email.includes('@') && password.length >= 6 && accepted;
 
   return (
-    <AuthShell>
-      <div className="mt-6 flex items-center justify-between">
+    <AuthShell logo={false}>
+      <div className="flex items-center justify-between">
         <Link
           to="/"
           aria-label="Voltar"

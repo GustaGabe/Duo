@@ -7,6 +7,7 @@ import { BottomNav } from '@/components/layout/bottom-nav';
 import { MobileTopBar } from '@/components/layout/page-header';
 import { Sidebar } from '@/components/layout/sidebar';
 import { SIDEBAR_ITEMS } from '@/components/layout/nav';
+import { navRow } from '@/components/layout/nav-link';
 import { Modal } from '@/components/ui/modal';
 import { TODAY } from '@/lib/clock';
 import { useCategories } from '@/hooks/use-categories';
@@ -60,15 +61,9 @@ function AppLayout() {
         {sheet === 'invite' && couple ? <InvitePanel couple={couple} onDone={close} /> : null}
 
         {sheet === 'menu' ? (
-          <nav className="flex flex-col">
+          <nav className="flex flex-col divide-y divide-line-soft">
             {SIDEBAR_ITEMS.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                onClick={close}
-                className="border-b border-line-soft py-3.5 text-section text-ink"
-                activeProps={{ className: 'text-accent' }}
-              >
+              <Link key={item.to} to={item.to} onClick={close} className={navRow()}>
                 {item.label}
               </Link>
             ))}

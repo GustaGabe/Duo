@@ -4,6 +4,7 @@ import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useCouple } from '@/hooks/use-couple';
 
+import { navLink } from './nav-link';
 import { Logo } from './logo';
 import { SIDEBAR_ITEMS } from './nav';
 
@@ -19,8 +20,7 @@ export function Sidebar({ onInvite }: { onInvite: () => void }) {
           <Link
             key={item.to}
             to={item.to}
-            className="flex h-11 items-center rounded-control px-3.5 text-sm text-on-invert-muted transition-colors hover:bg-on-invert/10 hover:text-on-invert"
-            activeProps={{ className: 'bg-accent font-medium text-on-accent hover:bg-accent' }}
+            className={navLink()}
           >
             {item.label}
           </Link>

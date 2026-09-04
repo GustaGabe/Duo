@@ -5,7 +5,7 @@ import { tv, type VariantProps } from '@/lib/tv';
 export const modal = tv({
   slots: {
     dialog: [
-      'w-full max-w-none bg-transparent p-0 text-ink outline-none backdrop:bg-invert/55',
+      'w-full max-w-none bg-transparent p-0 text-ink outline-none backdrop:bg-scrim',
       'mt-auto mb-0 ml-0 max-h-[92dvh]',
       'md:m-auto md:max-h-[88dvh]',
     ],

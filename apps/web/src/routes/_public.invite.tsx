@@ -13,8 +13,8 @@ function InvitePage() {
   const { data: couple } = useCouple();
 
   return (
-    <AuthShell>
-      <div className="mt-6 flex items-center justify-between">
+    <AuthShell logo={false}>
+      <div className="flex items-center justify-between">
         <Link
           to="/signup"
           aria-label="Voltar"

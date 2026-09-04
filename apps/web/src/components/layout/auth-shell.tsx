@@ -5,16 +5,18 @@ import { Logo } from './logo';
 export function AuthShell({
   children,
   showcase = false,
+  logo = true,
 }: {
   children: ReactNode;
   showcase?: boolean;
+  logo?: boolean;
 }) {
   return (
     <div className="flex min-h-dvh">
       {showcase ? <Showcase /> : null}
       <div className="flex flex-1 items-center justify-center px-7 py-14">
         <div className="w-full max-w-100">
-          <Logo />
+          {logo ? <Logo /> : null}
           {children}
         </div>
       </div>

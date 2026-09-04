@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router';
 
+import { navTab } from './nav-link';
 import { BOTTOM_NAV_ITEMS } from './nav';
 
 export function BottomNav({ onNewEntry }: { onNewEntry: () => void }) {
@@ -29,11 +30,7 @@ export function BottomNav({ onNewEntry }: { onNewEntry: () => void }) {
 
 function NavLabel({ to, label }: { to: string; label: string }) {
   return (
-    <Link
-      to={to}
-      className="px-1 text-caption text-on-invert-muted transition-colors"
-      activeProps={{ className: 'font-medium text-on-invert' }}
-    >
+    <Link to={to} className={navTab()}>
       {label}
     </Link>
   );
