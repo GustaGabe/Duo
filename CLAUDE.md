@@ -14,7 +14,7 @@ primitives that already exist.
 
 ```
 apps/web          React app (Vite + TanStack Router)
-apps/api          NestJS + PostgreSQL — not created yet
+apps/api          NestJS + PostgreSQL, layered per module (see Rule 4)
 packages/shared   pure domain types shared by both sides (@duo/shared)
 ```
 
@@ -147,6 +147,77 @@ render time, with `formatBRL` from `src/lib/format.ts`.
 
 ---
 
+## Rule 4 — every backend module has the same shape
+
+`apps/api/src/modules/transactions/` is the reference. Copy its layout; don't invent a new one.
+
+```
+modules/<feature>/
+├─ domain/                              no framework, no decorators, no imports outward
+│  ├─ entities/<x>.entity.ts            plain class, positional constructor, behaviour methods
+│  ├─ enums/<x>.enum.ts
+│  ├─ repositories/<x>.repository.ts    ABSTRACT class — it is the DI token
+│  └─ services/<x>.ts                   abstract port for non-repository collaborators
+├─ application/                         orchestrates the domain, knows nothing about HTTP
+│  ├─ dto/<action>-<x>.input.ts         the use case's input port
+│  └─ use-cases/<action>-<x>.use-case.ts   @Injectable with a single execute()
+├─ http/                                translates HTTP <-> use case, nothing else
+│  ├─ controllers/<x>.controller.ts
+│  ├─ guards/ decorators/               when the module owns them
+├─ infrastructure/                      the concrete implementations
+│  ├─ persistence/typeorm/
+│  │  ├─ <x>.orm-entity.ts              @Entity, snake_case columns
+│  │  ├─ <x>-typeorm.repository.ts      extends the domain's abstract class
+│  │  └─ mappers/<x>.mapper.ts          static toDomain / toPersistence
+│  ├─ repositories/in-memory-<x>.repository.ts
+│  └─ services/                         concrete adapters for domain/services ports
+└─ <feature>.module.ts                  binds { provide: XRepository, useClass: XTypeOrmRepository }
+```
+
+**Dependencies point inward.** `infrastructure` and `http` know `domain`; `domain` knows nobody.
+Swapping TypeORM for something else touches one folder. A `@Entity` decorator in `domain/`, or an
+`@nestjs/common` import there, means the layering broke.
+
+**The abstract repository is the seam.** It lives in `domain/` and doubles as the injection token —
+that is why it is an abstract class and not an interface, which would vanish at runtime. The module
+file is the only place that decides which implementation gets used.
+
+**Mappers own the translation.** ORM entities never leave `infrastructure/`; use cases only ever see
+domain entities. A `numeric` column comes back as a string from the driver, and the mapper is where
+that becomes a number.
+
+### Adding a module
+
+1. `domain/` first — entity, then the abstract repository describing what persistence must offer.
+2. One use case per operation, each with a single `execute()`. No service class collecting methods.
+3. The controller maps request to use case input and back. No business rules in it.
+4. `infrastructure/` last — ORM entity, mapper, repository implementation.
+5. Wire it in `<feature>.module.ts`; export what other modules need.
+
+### Naming
+
+`<action>-<resource>.use-case.ts` and `<Action><Resource>UseCase` — `create-transaction.use-case.ts`
+exports `CreateTransactionUseCase`. Files kebab-case, classes PascalCase, DB columns snake_case.
+
+---
+
+## Rule 5 — the auth token lives in a cookie, never in localStorage
+
+`localStorage` is readable by any script on the page, so a single injected script walks off with the
+session. The tokens are `httpOnly` cookies, which JavaScript cannot touch at all.
+
+- `duo_at` — access, 15 minutes. `duo_rt` — refresh, 7 days. Both `httpOnly`, `sameSite=lax`, and
+  `secure` in production.
+- Refresh tokens rotate: every refresh revokes the previous one. Replaying a revoked token is
+  treated as theft and drops every session for that user.
+- `apps/api/src/modules/auth/http/cookies.ts` is the only place that writes an auth cookie.
+- On the web side every request goes through `src/api/http.ts`, which sends `credentials: 'include'`
+  and retries once through `/auth/refresh` on a 401. Never call `fetch` directly.
+- Never put a token, a password, or anything derived from them in `localStorage`,
+  `sessionStorage`, or a URL.
+
+---
+
 ## Conventions
 
 - **Files** kebab-case (`transaction-item.tsx`). **Components** PascalCase.
@@ -184,5 +255,8 @@ chore: monorepo layout and tooling
 
 ## Out of scope right now
 
-`apps/api`, real authentication, persistence and automated tests. The **Relatórios** and **Metas**
-screens are placeholders — they have no artboard in the design. Don't expand them without one.
+Automated tests, social login, password recovery, and moving spaces / categories / summary onto the
+API — those endpoints don't exist yet, so the web app still reads them from `src/api/*` mocks.
+
+**Metas** is explicitly work in progress and **Relatórios** is a placeholder: neither has an artboard
+in the design. Don't expand them without one.
