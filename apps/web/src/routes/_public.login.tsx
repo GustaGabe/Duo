@@ -89,17 +89,7 @@ function LoginPage() {
         </Button>
       </form>
 
-      <div className="my-6 flex items-center gap-3">
-        <span className="h-px flex-1 bg-line" />
-        <span className="text-caption text-subtle">ou</span>
-        <span className="h-px flex-1 bg-line" />
-      </div>
-
-      <Button variant="secondary" size="lg" block className="rounded-panel font-medium" disabled>
-        <span className="font-mono text-label text-muted">#</span> Entrar com código do convite
-      </Button>
-
-      <p className="mt-6 text-center text-sm text-muted">
+      <p className="mt-7 text-center text-sm text-muted">
         Novo por aqui?{' '}
         <Link to="/signup" className="font-semibold text-accent">
           Criar conta
