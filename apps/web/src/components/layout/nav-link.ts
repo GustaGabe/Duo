@@ -2,7 +2,7 @@ import { tv } from '@/lib/tv';
 
 export const navLink = tv({
   base: [
-    'flex h-11 items-center rounded-control px-3.5 text-sm transition-colors',
+    'flex h-11 items-center gap-2 rounded-control px-3.5 text-sm transition-colors',
     'text-on-invert-muted hover:bg-on-invert/10 hover:text-on-invert',
     'data-[status=active]:bg-accent data-[status=active]:font-medium',
     'data-[status=active]:text-on-accent data-[status=active]:hover:bg-accent',
@@ -17,5 +17,16 @@ export const navTab = tv({
 });
 
 export const navRow = tv({
-  base: 'py-3.5 text-section text-ink transition-colors data-[status=active]:text-accent',
+  base: 'flex items-center gap-2 py-3.5 text-section text-ink transition-colors data-[status=active]:text-accent',
+});
+
+export const wipBadge = tv({
+  base: 'rounded-pill px-1.5 py-0.5 font-mono text-nano tracking-[0.1em] uppercase',
+  variants: {
+    on: {
+      invert: 'bg-on-invert/12 text-on-invert-muted',
+      surface: 'bg-surface-2 text-muted',
+    },
+  },
+  defaultVariants: { on: 'surface' },
 });

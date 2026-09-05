@@ -7,7 +7,7 @@ import { SpaceSwitcher } from '@/components/spaces/space-switcher';
 import { BottomNav } from '@/components/layout/bottom-nav';
 import { MobileTopBar } from '@/components/layout/page-header';
 import { SIDEBAR_ITEMS } from '@/components/layout/nav';
-import { navRow } from '@/components/layout/nav-link';
+import { navRow, wipBadge } from '@/components/layout/nav-link';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
@@ -99,6 +99,7 @@ function AppLayout() {
             {SIDEBAR_ITEMS.map((item) => (
               <Link key={item.to} to={item.to} onClick={close} className={navRow()}>
                 {item.label}
+                {item.wip ? <span className={wipBadge()}>WIP</span> : null}
               </Link>
             ))}
           </nav>

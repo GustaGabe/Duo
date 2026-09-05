@@ -7,7 +7,7 @@ import { useActiveSpace } from '@/hooks/use-spaces';
 
 import { Logo } from './logo';
 import { SIDEBAR_ITEMS } from './nav';
-import { navLink } from './nav-link';
+import { navLink, wipBadge } from './nav-link';
 
 export function Sidebar({ onSwitchSpace }: { onSwitchSpace: () => void }) {
   const { space, spaces, tones } = useActiveSpace();
@@ -20,6 +20,7 @@ export function Sidebar({ onSwitchSpace }: { onSwitchSpace: () => void }) {
         {SIDEBAR_ITEMS.map((item) => (
           <Link key={item.to} to={item.to} className={navLink()}>
             {item.label}
+            {item.wip ? <span className={wipBadge({ on: 'invert' })}>WIP</span> : null}
           </Link>
         ))}
       </nav>
