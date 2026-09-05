@@ -1,40 +1,38 @@
 import { Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsDate,
   IsEnum,
   IsInt,
   IsNotEmpty,
+  IsOptional,
   IsString,
+  IsUUID,
   MaxLength,
   Min,
 } from 'class-validator';
 
-import { TransactionType } from '../../domain/enums/transaction-type.enum';
+import { SplitMode } from '../../domain/enums/split-mode.enum';
+import { TransactionKind } from '../../domain/enums/transaction-kind.enum';
 
 export interface CreateTransactionInput {
   spaceId: string;
-  createdBy: string;
-  categoryId: string;
-  type: TransactionType;
+  kind: TransactionKind;
   description: string;
-  amount: number;
+  amountCents: number;
+  categoryId: string;
+  payerId: string;
+  split: SplitMode;
   date: Date;
+  recurring: boolean;
 }
 
-export class CreateTransactionDto implements Omit<
-  CreateTransactionInput,
-  'createdBy'
-> {
-  @IsString()
-  @IsNotEmpty()
+export class CreateTransactionDto {
+  @IsUUID()
   spaceId: string;
 
-  @IsString()
-  @IsNotEmpty()
-  categoryId: string;
-
-  @IsEnum(TransactionType)
-  type: TransactionType;
+  @IsEnum(TransactionKind)
+  kind: TransactionKind;
 
   @IsString()
   @IsNotEmpty()
@@ -43,9 +41,22 @@ export class CreateTransactionDto implements Omit<
 
   @IsInt()
   @Min(1)
-  amount: number;
+  amountCents: number;
+
+  @IsUUID()
+  categoryId: string;
+
+  @IsUUID()
+  payerId: string;
+
+  @IsEnum(SplitMode)
+  split: SplitMode;
 
   @Type(() => Date)
   @IsDate()
   date: Date;
+
+  @IsOptional()
+  @IsBoolean()
+  recurring?: boolean;
 }

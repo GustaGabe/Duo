@@ -3,6 +3,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { SpacesModule } from '../spaces/spaces.module';
 import { UsersModule } from '../users/users.module';
 import { RefreshSessionUseCase } from './application/use-cases/refresh-session.use-case';
 import { IssueSessionUseCase } from './application/use-cases/issue-session.use-case';
@@ -22,6 +23,7 @@ import { JwtTokenIssuer } from './infrastructure/services/jwt-token-issuer';
 @Module({
   imports: [
     UsersModule,
+    SpacesModule,
     JwtModule.register({}),
     TypeOrmModule.forFeature([RefreshSessionOrmEntity]),
   ],

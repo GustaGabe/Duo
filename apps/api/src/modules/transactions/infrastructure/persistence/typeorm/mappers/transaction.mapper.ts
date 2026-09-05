@@ -1,5 +1,6 @@
-import { TransactionType } from 'src/modules/transactions/domain/enums/transaction-type.enum';
-import { Transaction } from 'src/modules/transactions/domain/entities/transaction.entity';
+import { Transaction } from '../../../../domain/entities/transaction.entity';
+import { SplitMode } from '../../../../domain/enums/split-mode.enum';
+import { TransactionKind } from '../../../../domain/enums/transaction-kind.enum';
 import { TransactionOrmEntity } from '../transaction.orm-entity';
 
 export class TransactionMapper {
@@ -7,12 +8,15 @@ export class TransactionMapper {
     return new Transaction(
       entity.id,
       entity.spaceId,
-      entity.createdBy,
-      entity.categoryId,
-      entity.type as TransactionType,
+      entity.kind as TransactionKind,
       entity.description,
-      Number(entity.amount),
-      entity.date,
+      entity.amountCents,
+      entity.categoryId,
+      entity.payerId,
+      entity.split as SplitMode,
+      new Date(`${entity.date}T00:00:00.000Z`),
+      entity.recurring,
+      entity.createdAt,
     );
   }
 
@@ -21,12 +25,15 @@ export class TransactionMapper {
 
     entity.id = transaction.id;
     entity.spaceId = transaction.spaceId;
-    entity.createdBy = transaction.createdBy;
-    entity.categoryId = transaction.categoryId;
-    entity.type = transaction.type;
+    entity.kind = transaction.kind;
     entity.description = transaction.description;
-    entity.amount = transaction.amount;
-    entity.date = transaction.date;
+    entity.amountCents = transaction.amountCents;
+    entity.categoryId = transaction.categoryId;
+    entity.payerId = transaction.payerId;
+    entity.split = transaction.split;
+    entity.date = transaction.date.toISOString().slice(0, 10);
+    entity.recurring = transaction.recurring;
+    entity.createdAt = transaction.createdAt;
 
     return entity;
   }

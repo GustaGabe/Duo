@@ -1,32 +1,38 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, PrimaryColumn } from 'typeorm';
 
 @Entity('transactions')
 export class TransactionOrmEntity {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id: string;
 
-  @Column({ name: 'space_id' })
+  @Index()
+  @Column({ name: 'space_id', type: 'uuid' })
   spaceId: string;
 
-  @Column({ name: 'created_by' })
-  createdBy: string;
-
-  @Column({ name: 'category_id' })
-  categoryId: string;
-
   @Column()
-  type: string;
+  kind: string;
 
   @Column()
   description: string;
 
-  @Column({
-    type: 'decimal',
-    precision: 10,
-    scale: 2,
-  })
-  amount: number;
+  @Column({ name: 'amount_cents', type: 'integer' })
+  amountCents: number;
 
-  @Column({ type: 'timestamp' })
-  date: Date;
+  @Column({ name: 'category_id', type: 'uuid' })
+  categoryId: string;
+
+  @Column({ name: 'payer_id', type: 'uuid' })
+  payerId: string;
+
+  @Column()
+  split: string;
+
+  @Column({ type: 'date' })
+  date: string;
+
+  @Column({ default: false })
+  recurring: boolean;
+
+  @Column({ name: 'created_at', type: 'timestamptz' })
+  createdAt: Date;
 }

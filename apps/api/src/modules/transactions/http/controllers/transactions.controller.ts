@@ -6,14 +6,16 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 
-import { User } from '../../../users/domain/entities/user.entity';
-import { CurrentUser } from '../../../auth/http/decorators/current-user.decorator';
+import { SpaceMemberGuard } from '../../../spaces/http/guards/space-member.guard';
 import { CreateTransactionDto } from '../../application/dto/create-transaction.input';
+import { ListTransactionsDto } from '../../application/dto/list-transactions.input';
 import { UpdateTransactionDto } from '../../application/dto/update-transaction.update';
 import { CreateTransactionUseCase } from '../../application/use-cases/create-transaction.use-case';
 import { DeleteTransactionUseCase } from '../../application/use-cases/delete-transaction.use-case';
@@ -22,6 +24,7 @@ import { ListTransactionsUseCase } from '../../application/use-cases/list-transa
 import { UpdateTransactionUseCase } from '../../application/use-cases/update-transaction.use-case';
 
 @Controller('transactions')
+@UseGuards(SpaceMemberGuard)
 export class TransactionsController {
   constructor(
     private readonly createTransactionUseCase: CreateTransactionUseCase,
@@ -32,43 +35,41 @@ export class TransactionsController {
   ) {}
 
   @Post()
-  create(@Body() dto: CreateTransactionDto, @CurrentUser() user: User) {
+  create(@Body() dto: CreateTransactionDto) {
     return this.createTransactionUseCase.execute({
       spaceId: dto.spaceId,
-      createdBy: user.id,
-      categoryId: dto.categoryId,
-      type: dto.type,
+      kind: dto.kind,
       description: dto.description,
-      amount: dto.amount,
-      date: new Date(dto.date),
+      amountCents: dto.amountCents,
+      categoryId: dto.categoryId,
+      payerId: dto.payerId,
+      split: dto.split,
+      date: dto.date,
+      recurring: dto.recurring ?? false,
     });
   }
 
   @Get()
-  findAll(@Query('spaceId') spaceId: string) {
-    return this.listTransactionsUseCase.execute({ spaceId });
+  findAll(@Query() query: ListTransactionsDto) {
+    return this.listTransactionsUseCase.execute(query);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.getTransactionUseCase.execute(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateTransactionDto) {
-    return this.updateTransactionUseCase.execute({
-      id,
-      categoryId: dto.categoryId,
-      type: dto.type,
-      description: dto.description,
-      amount: dto.amount,
-      date: dto.date === undefined ? undefined : new Date(dto.date),
-    });
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateTransactionDto,
+  ) {
+    return this.updateTransactionUseCase.execute({ id, ...dto });
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: string) {
-    return this.deleteTransactionUseCase.execute(id);
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
+    await this.deleteTransactionUseCase.execute(id);
   }
 }

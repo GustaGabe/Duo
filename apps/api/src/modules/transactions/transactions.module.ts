@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { SpacesModule } from '../spaces/spaces.module';
 import { CreateTransactionUseCase } from './application/use-cases/create-transaction.use-case';
 import { DeleteTransactionUseCase } from './application/use-cases/delete-transaction.use-case';
 import { GetTransactionUseCase } from './application/use-cases/get-transaction.use-case';
@@ -12,7 +13,7 @@ import { TransactionOrmEntity } from './infrastructure/persistence/typeorm/trans
 import { TransactionTypeOrmRepository } from './infrastructure/persistence/typeorm/transaction-typeorm.repository';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TransactionOrmEntity])],
+  imports: [SpacesModule, TypeOrmModule.forFeature([TransactionOrmEntity])],
   controllers: [TransactionsController],
   providers: [
     { provide: TransactionRepository, useClass: TransactionTypeOrmRepository },
@@ -22,5 +23,6 @@ import { TransactionTypeOrmRepository } from './infrastructure/persistence/typeo
     UpdateTransactionUseCase,
     DeleteTransactionUseCase,
   ],
+  exports: [TransactionRepository],
 })
 export class TransactionsModule {}

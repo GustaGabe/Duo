@@ -1,22 +1,36 @@
-import { TransactionType } from '../enums/transaction-type.enum';
+import { SplitMode } from '../enums/split-mode.enum';
+import { TransactionKind } from '../enums/transaction-kind.enum';
 
 export class Transaction {
   constructor(
     public readonly id: string,
     public readonly spaceId: string,
-    public readonly createdBy: string,
-    public categoryId: string,
-    public type: TransactionType,
+    public kind: TransactionKind,
     public description: string,
-    public amount: number,
+    public amountCents: number,
+    public categoryId: string,
+    public payerId: string,
+    public split: SplitMode,
     public date: Date,
+    public recurring: boolean,
+    public readonly createdAt: Date,
   ) {}
 
-  isExpense() {
-    return this.type === TransactionType.EXPENSE;
+  isExpense(): boolean {
+    return this.kind === TransactionKind.EXPENSE;
   }
 
-  isIncome() {
-    return this.type === TransactionType.INCOME;
+  isIncome(): boolean {
+    return this.kind === TransactionKind.INCOME;
+  }
+
+  isShared(): boolean {
+    return this.split === SplitMode.EQUAL;
+  }
+
+  /** What this member carries of the entry, in cents. */
+  carriedBy(userId: string, memberCount: number): number {
+    if (this.isShared()) return Math.round(this.amountCents / memberCount);
+    return this.payerId === userId ? this.amountCents : 0;
   }
 }

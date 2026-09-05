@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
+import { CreateSpaceUseCase } from '../../../spaces/application/use-cases/create-space.use-case';
 import { CreateUserUseCase } from '../../../users/application/use-cases/create-user.use-case';
 import { PasswordHasher } from '../../domain/services/password-hasher';
 import { AuthResult } from '../dto/auth-result';
@@ -10,6 +11,7 @@ import { IssueSessionUseCase } from './issue-session.use-case';
 export class SignUpUseCase {
   constructor(
     private readonly createUser: CreateUserUseCase,
+    private readonly createSpace: CreateSpaceUseCase,
     private readonly hasher: PasswordHasher,
     private readonly issueSession: IssueSessionUseCase,
   ) {}
@@ -22,6 +24,8 @@ export class SignUpUseCase {
       email: input.email,
       passwordHash,
     });
+
+    await this.createSpace.execute(user, user.name.split(' ')[0] ?? user.name);
 
     return this.issueSession.execute(user);
   }
