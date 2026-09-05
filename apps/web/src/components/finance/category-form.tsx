@@ -1,17 +1,26 @@
-import type { CategoryColor, CategoryScope, TransactionKind } from '@duo/shared';
+import type { Category, CategoryColor, CategoryScope, TransactionKind } from '@duo/shared';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Field, Input, Label } from '@/components/ui/field';
+import { Segmented } from '@/components/ui/segmented';
 import { ColorSwatch, TagSquare } from '@/components/ui/tag-square';
 import { useCreateCategory } from '@/hooks/use-categories';
 import { CATEGORY_COLORS, suggestTag } from '@/lib/category';
 import { digitsToCents, formatAmount } from '@/lib/format';
 
-export function CategoryForm({ spaceId, onDone }: { spaceId: string; onDone: () => void }) {
+export function CategoryForm({
+  spaceId,
+  defaultKind = 'expense',
+  onDone,
+}: {
+  spaceId: string;
+  defaultKind?: TransactionKind;
+  onDone: (category: Category) => void;
+}) {
   const [name, setName] = useState('');
   const [tag, setTag] = useState('');
-  const [kind] = useState<TransactionKind>('expense');
+  const [kind, setKind] = useState<TransactionKind>(defaultKind);
   const [color, setColor] = useState<CategoryColor>('accent');
   const [limitDigits, setLimitDigits] = useState('');
   const [shared] = useState(true);
@@ -23,7 +32,7 @@ export function CategoryForm({ spaceId, onDone }: { spaceId: string; onDone: () 
   async function submit() {
     if (!name.trim()) return;
     const scope: CategoryScope = shared ? 'shared' : 'private';
-    await create.mutateAsync({
+    const category = await create.mutateAsync({
       spaceId,
       name: name.trim(),
       tag: badge,
@@ -33,7 +42,8 @@ export function CategoryForm({ spaceId, onDone }: { spaceId: string; onDone: () 
       monthlyLimitCents: limitCents > 0 ? limitCents : null,
       scope,
     });
-    onDone();
+
+    onDone(category);
   }
 
   return (
@@ -52,33 +62,47 @@ export function CategoryForm({ spaceId, onDone }: { spaceId: string; onDone: () 
         </div>
       </div>
 
-    <div className="flex w-full gap-2">
-        <Field label="Nome" className="flex-1">
-        {(id) => (
-          <Input
-            id={id}
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder="Pets"
-            autoFocus
-            className="w-full"
-          />
-        )}
-      </Field>
+      <div className="flex flex-col gap-2">
+        <Label>Tipo</Label>
+        <Segmented
+          aria-label="Tipo da categoria"
+          shape="block"
+          value={kind}
+          onChange={setKind}
+          options={[
+            { value: 'expense', label: 'Saída' },
+            { value: 'income', label: 'Entrada' },
+          ]}
+        />
+      </div>
 
-      <Field label="Sigla" className="w-15">
-        {(id) => (
-          <Input
-            id={id}
-            value={tag}
-            maxLength={2}
-            placeholder={suggestTag(name || 'Nova')}
-            onChange={(event) => setTag(event.target.value.toUpperCase())}
-            className="w-15 font-mono tracking-widest uppercase"
-          />
-        )}
-      </Field>
-    </div>
+      <div className="flex w-full gap-2">
+        <Field label="Nome" className="flex-1">
+          {(id) => (
+            <Input
+              id={id}
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="Pets"
+              autoFocus
+              className="w-full"
+            />
+          )}
+        </Field>
+
+        <Field label="Sigla" className="w-15">
+          {(id) => (
+            <Input
+              id={id}
+              value={tag}
+              maxLength={2}
+              placeholder={suggestTag(name || 'Nova')}
+              onChange={(event) => setTag(event.target.value.toUpperCase())}
+              className="w-15 font-mono tracking-widest uppercase"
+            />
+          )}
+        </Field>
+      </div>
 
       <div className="flex flex-col gap-2.5">
         <Label>Cor</Label>
@@ -94,7 +118,10 @@ export function CategoryForm({ spaceId, onDone }: { spaceId: string; onDone: () 
         </div>
       </div>
 
-      <Field label="Limite mensal (opcional)" hint={limitCents > 0 ? 'Alerta em 80% do limite.' : undefined}>
+      <Field
+        label={kind === 'income' ? 'Meta mensal (opcional)' : 'Limite mensal (opcional)'}
+        hint={limitCents > 0 ? 'Alerta em 80% do limite.' : undefined}
+      >
         {(id) => (
           <Input
             id={id}
