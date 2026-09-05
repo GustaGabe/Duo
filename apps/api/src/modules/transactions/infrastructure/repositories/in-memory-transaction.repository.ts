@@ -7,25 +7,30 @@ import { TransactionRepository } from '../../domain/repositories/transaction.rep
 export class InMemoryTransactionRepository extends TransactionRepository {
   private readonly transactions = new Map<string, Transaction>();
 
-  async create(transaction: Transaction): Promise<void> {
+  create(transaction: Transaction): Promise<void> {
     this.transactions.set(transaction.id, transaction);
+    return Promise.resolve();
   }
 
-  async findById(id: string): Promise<Transaction | null> {
-    return this.transactions.get(id) ?? null;
+  findById(id: string): Promise<Transaction | null> {
+    return Promise.resolve(this.transactions.get(id) ?? null);
   }
 
-  async findBySpaceId(spaceId: string): Promise<Transaction[]> {
-    return [...this.transactions.values()]
-      .filter((transaction) => transaction.spaceId === spaceId)
-      .sort((a, b) => b.date.getTime() - a.date.getTime());
+  findBySpaceId(spaceId: string): Promise<Transaction[]> {
+    return Promise.resolve(
+      [...this.transactions.values()]
+        .filter((transaction) => transaction.spaceId === spaceId)
+        .sort((a, b) => b.date.getTime() - a.date.getTime()),
+    );
   }
 
-  async update(transaction: Transaction): Promise<void> {
+  update(transaction: Transaction): Promise<void> {
     this.transactions.set(transaction.id, transaction);
+    return Promise.resolve();
   }
 
-  async delete(id: string): Promise<void> {
+  delete(id: string): Promise<void> {
     this.transactions.delete(id);
+    return Promise.resolve();
   }
 }

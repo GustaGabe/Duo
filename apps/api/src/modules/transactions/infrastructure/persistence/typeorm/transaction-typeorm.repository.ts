@@ -38,7 +38,7 @@ export class TransactionTypeOrmRepository extends TransactionRepository {
       where: { spaceId },
     });
 
-    return entities.map(TransactionMapper.toDomain);
+    return entities.map((entity) => TransactionMapper.toDomain(entity));
   }
 
   async update(transaction: Transaction): Promise<void> {

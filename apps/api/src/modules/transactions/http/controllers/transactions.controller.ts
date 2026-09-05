@@ -11,6 +11,8 @@ import {
   Query,
 } from '@nestjs/common';
 
+import { User } from '../../../users/domain/entities/user.entity';
+import { CurrentUser } from '../../../auth/http/decorators/current-user.decorator';
 import { CreateTransactionDto } from '../../application/dto/create-transaction.input';
 import { UpdateTransactionDto } from '../../application/dto/update-transaction.update';
 import { CreateTransactionUseCase } from '../../application/use-cases/create-transaction.use-case';
@@ -30,10 +32,10 @@ export class TransactionsController {
   ) {}
 
   @Post()
-  create(@Body() dto: CreateTransactionDto) {
+  create(@Body() dto: CreateTransactionDto, @CurrentUser() user: User) {
     return this.createTransactionUseCase.execute({
       spaceId: dto.spaceId,
-      createdBy: dto.createdBy,
+      createdBy: user.id,
       categoryId: dto.categoryId,
       type: dto.type,
       description: dto.description,
