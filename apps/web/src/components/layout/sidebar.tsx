@@ -1,16 +1,24 @@
 import { Link } from '@tanstack/react-router';
 
 import { SpaceMark } from '@/components/spaces/space-mark';
-import { AvatarStack } from '@/components/ui/avatar';
+import { Avatar, AvatarStack } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { useSession } from '@/hooks/use-session';
 import { useActiveSpace } from '@/hooks/use-spaces';
 
 import { Logo } from './logo';
 import { SIDEBAR_ITEMS } from './nav';
 import { navLink, wipBadge } from './nav-link';
 
-export function Sidebar({ onSwitchSpace }: { onSwitchSpace: () => void }) {
+export function Sidebar({
+  onSwitchSpace,
+  onSignOut,
+}: {
+  onSwitchSpace: () => void;
+  onSignOut: () => void;
+}) {
   const { space, spaces, tones } = useActiveSpace();
+  const { data: session } = useSession();
 
   return (
     <aside className="hidden w-62 shrink-0 flex-col gap-7 bg-invert p-5 pt-7 text-on-invert lg:flex">
@@ -43,6 +51,22 @@ export function Sidebar({ onSwitchSpace }: { onSwitchSpace: () => void }) {
           <Button variant="invert" size="sm" block className="mt-3.5" onClick={onSwitchSpace}>
             {spaces && spaces.length > 1 ? 'Trocar espaço' : 'Gerenciar'}
           </Button>
+        </div>
+      ) : null}
+
+      {session ? (
+        <div className="flex items-center gap-2.5 px-1">
+          <Avatar name={session.name} slot="a" size="sm" />
+          <span className="min-w-0 flex-1 truncate text-caption text-on-invert-muted">
+            {session.email}
+          </span>
+          <button
+            type="button"
+            onClick={onSignOut}
+            className="cursor-pointer text-caption text-on-invert-muted transition-colors hover:text-on-invert"
+          >
+            Sair
+          </button>
         </div>
       ) : null}
     </aside>

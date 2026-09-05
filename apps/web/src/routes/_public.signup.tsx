@@ -7,6 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Field, Input, Label } from '@/components/ui/field';
 import { Stepper } from '@/components/ui/misc';
 import { PasswordInput } from '@/components/ui/password-input';
+import { errorMessage, useSignUp } from '@/hooks/use-session';
 import { cn } from '@/lib/cn';
 
 export const Route = createFileRoute('/_public/signup')({ component: SignUpPage });
@@ -20,8 +21,11 @@ function SignUpPage() {
   const [password, setPassword] = useState('');
   const [accepted, setAccepted] = useState(false);
 
+  const signUp = useSignUp();
+  const failure = errorMessage(signUp.error);
+
   const strength = Math.min(3, Math.floor(password.length / 4));
-  const ready = name.trim().length > 1 && email.includes('@') && password.length >= 6 && accepted;
+  const ready = name.trim().length > 1 && email.includes('@') && password.length >= 8 && accepted;
 
   return (
     <AuthShell logo={false}>
@@ -45,7 +49,10 @@ function SignUpPage() {
         className="mt-7 flex flex-col gap-4.5"
         onSubmit={(event) => {
           event.preventDefault();
-          void navigate({ to: '/invite' });
+          signUp.mutate(
+            { name, email, password },
+            { onSuccess: () => void navigate({ to: '/invite' }) },
+          );
         }}
       >
         <Field label="Nome">
@@ -102,8 +109,14 @@ function SignUpPage() {
           </span>
         </label>
 
-        <Button type="submit" size="lg" block disabled={!ready}>
-          Continuar
+        {failure ? (
+          <p role="alert" className="text-caption font-medium text-accent">
+            {failure}
+          </p>
+        ) : null}
+
+        <Button type="submit" size="lg" block disabled={!ready || signUp.isPending}>
+          {signUp.isPending ? 'Criando conta…' : 'Continuar'}
         </Button>
       </form>
     </AuthShell>

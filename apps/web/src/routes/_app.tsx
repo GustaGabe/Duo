@@ -1,4 +1,4 @@
-import { Link, Outlet, createFileRoute, useNavigate } from '@tanstack/react-router';
+import { Link, Outlet, createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 
 import { TransactionForm } from '@/components/finance/transaction-form';
@@ -12,18 +12,30 @@ import { Sidebar } from '@/components/layout/sidebar';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import { useCategories } from '@/hooks/use-categories';
+import { useSignOut } from '@/hooks/use-session';
 import { useActiveSpace, useCurrentUser } from '@/hooks/use-spaces';
 import { TODAY } from '@/lib/clock';
+import { loadSession } from '@/hooks/use-session';
 
-export const Route = createFileRoute('/_app')({ component: AppLayout });
+export const Route = createFileRoute('/_app')({
+  beforeLoad: async ({ context, location }) => {
+    const session = await loadSession(context.queryClient);
 
-type Sheet = 'entry' | 'switch' | 'new-space' | 'menu' | null;
+    if (!session) {
+      throw redirect({ to: '/login', search: { redirect: location.href } });
+    }
+  },
+  component: AppLayout,
+});
+
+type Sheet = 'entry' | 'switch' | 'new-space' | 'menu' | 'sign-out' | null;
 
 const TITLES: Record<Exclude<Sheet, null>, string> = {
   entry: 'Novo lançamento',
   switch: 'Trocar de espaço',
   'new-space': 'Novo espaço',
   menu: 'Navegação',
+  'sign-out': 'Sair da conta',
 };
 
 function AppLayout() {
@@ -31,13 +43,14 @@ function AppLayout() {
   const navigate = useNavigate();
   const { space, spaces, tones, setSpaceId } = useActiveSpace();
   const { data: me } = useCurrentUser();
+  const signOutMutation = useSignOut();
   const { data: categories } = useCategories(space?.id);
 
   const close = () => setSheet(null);
 
   return (
     <div className="flex min-h-dvh bg-canvas">
-      <Sidebar onSwitchSpace={() => setSheet('switch')} />
+      <Sidebar onSwitchSpace={() => setSheet('switch')} onSignOut={() => setSheet('sign-out')} />
 
       <main className="pb-nav flex min-w-0 flex-1 flex-col gap-6 px-6 pt-12 lg:px-8 lg:py-7 lg:pb-8">
         <MobileTopBar onMenu={() => setSheet('menu')} />
@@ -95,14 +108,43 @@ function AppLayout() {
         {sheet === 'new-space' ? <SpaceForm onDone={close} /> : null}
 
         {sheet === 'menu' ? (
-          <nav className="flex flex-col divide-y divide-line-soft">
-            {SIDEBAR_ITEMS.map((item) => (
-              <Link key={item.to} to={item.to} onClick={close} className={navRow()}>
-                {item.label}
-                {item.wip ? <span className={wipBadge()}>WIP</span> : null}
-              </Link>
-            ))}
-          </nav>
+          <div className="flex flex-col gap-4">
+            <nav className="flex flex-col divide-y divide-line-soft">
+              {SIDEBAR_ITEMS.map((item) => (
+                <Link key={item.to} to={item.to} onClick={close} className={navRow()}>
+                  {item.label}
+                  {item.wip ? <span className={wipBadge()}>WIP</span> : null}
+                </Link>
+              ))}
+            </nav>
+            <Button variant="secondary" block onClick={() => setSheet('sign-out')}>
+              Sair da conta
+            </Button>
+          </div>
+        ) : null}
+
+        {sheet === 'sign-out' ? (
+          <div className="flex flex-col gap-6">
+            <p className="text-body text-ink-soft">
+              Você vai precisar entrar de novo para ver os lançamentos do espaço.
+            </p>
+            <div className="flex gap-3">
+              <Button variant="secondary" block onClick={close}>
+                Cancelar
+              </Button>
+              <Button
+                block
+                disabled={signOutMutation.isPending}
+                onClick={() =>
+                  signOutMutation.mutate(undefined, {
+                    onSettled: () => void navigate({ to: '/login' }),
+                  })
+                }
+              >
+                {signOutMutation.isPending ? 'Saindo…' : 'Sair'}
+              </Button>
+            </div>
+          </div>
         ) : null}
       </Modal>
     </div>

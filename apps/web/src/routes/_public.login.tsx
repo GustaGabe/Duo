@@ -6,14 +6,23 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Field, Input, Label } from '@/components/ui/field';
 import { PasswordInput } from '@/components/ui/password-input';
+import { errorMessage, useSignIn } from '@/hooks/use-session';
 
-export const Route = createFileRoute('/_public/login')({ component: LoginPage });
+export const Route = createFileRoute('/_public/login')({
+  validateSearch: (search: Record<string, unknown>): { redirect?: string } =>
+    typeof search.redirect === 'string' ? { redirect: search.redirect } : {},
+  component: LoginPage,
+});
 
 function LoginPage() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('ana@duo.app');
-  const [password, setPassword] = useState('duoduo12');
+  const { redirect } = Route.useSearch();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [stayed, setStayed] = useState(true);
+
+  const signIn = useSignIn();
+  const failure = errorMessage(signIn.error);
 
   return (
     <AuthShell showcase>
@@ -28,7 +37,10 @@ function LoginPage() {
         className="mt-7 flex flex-col gap-4.5"
         onSubmit={(event) => {
           event.preventDefault();
-          void navigate({ to: '/dashboard' });
+          signIn.mutate(
+            { email, password },
+            { onSuccess: () => void navigate({ to: redirect ?? '/dashboard' }) },
+          );
         }}
       >
         <Field label="E-mail">
@@ -36,8 +48,11 @@ function LoginPage() {
             <Input
               id={id}
               type="email"
+              autoComplete="email"
+              placeholder="ana@duo.app"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
+              required
             />
           )}
         </Field>
@@ -46,10 +61,18 @@ function LoginPage() {
           <Label htmlFor="password">Senha</Label>
           <PasswordInput
             id="password"
+            autoComplete="current-password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
+            required
           />
         </div>
+
+        {failure ? (
+          <p role="alert" className="text-caption font-medium text-accent">
+            {failure}
+          </p>
+        ) : null}
 
         <div className="flex items-center justify-between">
           <label className="flex cursor-pointer items-center gap-2">
@@ -61,8 +84,8 @@ function LoginPage() {
           </button>
         </div>
 
-        <Button type="submit" size="lg" block>
-          Entrar
+        <Button type="submit" size="lg" block disabled={signIn.isPending}>
+          {signIn.isPending ? 'Entrando…' : 'Entrar'}
         </Button>
       </form>
 
@@ -72,14 +95,9 @@ function LoginPage() {
         <span className="h-px flex-1 bg-line" />
       </div>
 
-      <div className="flex flex-col gap-3">
-        <Button variant="secondary" size="lg" block className="rounded-panel font-medium">
-          <span className="font-mono text-label text-muted">G</span> Continuar com Google
-        </Button>
-        <Button variant="secondary" size="lg" block className="rounded-panel font-medium">
-          <span className="font-mono text-label text-muted">#</span> Entrar com código do convite
-        </Button>
-      </div>
+      <Button variant="secondary" size="lg" block className="rounded-panel font-medium" disabled>
+        <span className="font-mono text-label text-muted">#</span> Entrar com código do convite
+      </Button>
 
       <p className="mt-6 text-center text-sm text-muted">
         Novo por aqui?{' '}

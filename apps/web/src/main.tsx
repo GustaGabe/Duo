@@ -10,6 +10,7 @@ import './styles/globals.css';
 
 const router = createRouter({
   routeTree,
+  context: { queryClient },
   defaultPreload: 'intent',
   scrollRestoration: true,
 });
