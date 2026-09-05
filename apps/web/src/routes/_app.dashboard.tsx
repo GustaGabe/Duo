@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 
-import { TODAY } from '@/lib/clock';
+import { today } from '@/lib/clock';
 import { CategoryProgressList } from '@/components/finance/category-progress';
 import { SettlementCard } from '@/components/finance/settlement-card';
 import {
@@ -16,7 +16,7 @@ import { PageHeader, ThemeToggle } from '@/components/layout/page-header';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
-import { Skeleton } from '@/components/ui/misc';
+import { EmptyState, Skeleton } from '@/components/ui/misc';
 import { useCategories } from '@/hooks/use-categories';
 import { useActiveSpace } from '@/hooks/use-spaces';
 import { useMonthSummary } from '@/hooks/use-summary';
@@ -44,13 +44,16 @@ function Painel() {
     );
   }
 
-  const filters = [
-    { value: 'all', label: 'Ambos' },
-    ...space.members.map((member) => ({
-      value: member.id,
-      label: member.name.split(' ')[0] ?? member.name,
-    })),
-  ];
+  const filters =
+    space.members.length < 2
+      ? []
+      : [
+          { value: 'all', label: 'Todos' },
+          ...space.members.map((member) => ({
+            value: member.id,
+            label: member.name.split(' ')[0] ?? member.name,
+          })),
+        ];
 
   return (
     <>
@@ -107,6 +110,13 @@ function Painel() {
             </div>
           </div>
 
+          {transactions && transactions.length === 0 ? (
+            <EmptyState
+              title="Nenhum lançamento ainda"
+              description="O saldo, a divisão e o acerto do mês aparecem assim que você registrar o primeiro gasto."
+            />
+          ) : null}
+
           <ul className="flex flex-col divide-y divide-line-soft">
             {(transactions ?? []).map((transaction) => (
               <li key={transaction.id}>
@@ -114,7 +124,7 @@ function Painel() {
                   transaction={transaction}
                   category={categories.find((category) => category.id === transaction.categoryId)}
                   payer={space.members.find((member) => member.id === transaction.payerId)}
-                  today={TODAY}
+                  today={today()}
                 />
               </li>
             ))}

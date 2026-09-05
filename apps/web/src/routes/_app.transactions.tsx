@@ -2,7 +2,7 @@ import type { Transaction } from '@duo/shared';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 
-import { TODAY } from '@/lib/clock';
+import { today } from '@/lib/clock';
 import { TransactionForm } from '@/components/finance/transaction-form';
 import { TransactionItem } from '@/components/finance/transaction-item';
 import { PageHeader } from '@/components/layout/page-header';
@@ -12,10 +12,11 @@ import { Chip } from '@/components/ui/chip';
 import { DataTable, type Column } from '@/components/ui/data-table';
 import { Modal } from '@/components/ui/modal';
 import { Money } from '@/components/ui/money';
-import { Skeleton } from '@/components/ui/misc';
+import { EmptyState, Skeleton } from '@/components/ui/misc';
 import { TagSquare } from '@/components/ui/tag-square';
 import { useCategories } from '@/hooks/use-categories';
-import { useActiveSpace, useCurrentUser } from '@/hooks/use-spaces';
+import { useSession } from '@/hooks/use-session';
+import { useActiveSpace } from '@/hooks/use-spaces';
 import { useTransactions } from '@/hooks/use-transactions';
 import { cn } from '@/lib/cn';
 import { formatRelativeDay } from '@/lib/format';
@@ -27,7 +28,7 @@ function Lancamentos() {
   const [owner, setOwner] = useState('all');
   const [creating, setCreating] = useState(false);
   const { space } = useActiveSpace();
-  const { data: me } = useCurrentUser();
+  const { data: me } = useSession();
   const { data: categories } = useCategories(space?.id);
   const { data: transactions } = useTransactions(space ? { spaceId: space.id, owner } : undefined);
 
@@ -36,13 +37,16 @@ function Lancamentos() {
   const category = (id: string) => categories.find((item) => item.id === id);
   const payer = (id: string) => space.members.find((member) => member.id === id);
 
-  const filters = [
-    { value: 'all', label: 'Ambos' },
-    ...space.members.map((member) => ({
-      value: member.id,
-      label: member.name.split(' ')[0] ?? member.name,
-    })),
-  ];
+  const filters =
+    space.members.length < 2
+      ? []
+      : [
+          { value: 'all', label: 'Todos' },
+          ...space.members.map((member) => ({
+            value: member.id,
+            label: member.name.split(' ')[0] ?? member.name,
+          })),
+        ];
 
   const columns: Column<Transaction>[] = [
     {
@@ -54,7 +58,7 @@ function Lancamentos() {
           <TagSquare tag={category(row.categoryId)?.tag ?? '??'} color={category(row.categoryId)?.color} size="sm" />
           <div className="min-w-0">
             <p className="truncate text-sm font-medium text-ink">{row.description}</p>
-            <p className="text-micro text-subtle">{formatRelativeDay(row.date, TODAY)}</p>
+            <p className="text-micro text-subtle">{formatRelativeDay(row.date, today())}</p>
           </div>
         </div>
       ),
@@ -114,10 +118,26 @@ function Lancamentos() {
       </div>
 
       <Card className="hidden min-h-0 flex-1 flex-col lg:flex lg:p-5.5">
-        <DataTable columns={columns} rows={transactions} getRowKey={(row) => row.id} />
+        <DataTable
+          columns={columns}
+          rows={transactions}
+          getRowKey={(row) => row.id}
+          empty="Nenhum lançamento neste mês."
+        />
       </Card>
 
       <Card className="lg:hidden">
+        {transactions.length === 0 ? (
+          <EmptyState
+            title="Nenhum lançamento neste mês"
+            description="Registre uma saída ou entrada para começar."
+            action={
+              <Button className="mt-2" onClick={() => setCreating(true)}>
+                + Novo lançamento
+              </Button>
+            }
+          />
+        ) : null}
         <ul className="flex flex-col divide-y divide-line-soft">
           {transactions.map((transaction) => (
             <li key={transaction.id}>
@@ -125,7 +145,7 @@ function Lancamentos() {
                 transaction={transaction}
                 category={category(transaction.categoryId)}
                 payer={payer(transaction.payerId)}
-                today={TODAY}
+                today={today()}
               />
             </li>
           ))}
@@ -138,7 +158,7 @@ function Lancamentos() {
           members={space.members}
           categories={categories}
           viewerId={me.id}
-          today={TODAY}
+          today={today()}
           onDone={() => setCreating(false)}
         />
       </Modal>

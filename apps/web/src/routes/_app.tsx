@@ -12,9 +12,9 @@ import { Sidebar } from '@/components/layout/sidebar';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import { useCategories } from '@/hooks/use-categories';
-import { useSignOut } from '@/hooks/use-session';
-import { useActiveSpace, useCurrentUser } from '@/hooks/use-spaces';
-import { TODAY } from '@/lib/clock';
+import { useSession, useSignOut } from '@/hooks/use-session';
+import { useActiveSpace } from '@/hooks/use-spaces';
+import { today } from '@/lib/clock';
 import { loadSession } from '@/hooks/use-session';
 
 export const Route = createFileRoute('/_app')({
@@ -42,7 +42,7 @@ function AppLayout() {
   const [sheet, setSheet] = useState<Sheet>(null);
   const navigate = useNavigate();
   const { space, spaces, tones, setSpaceId } = useActiveSpace();
-  const { data: me } = useCurrentUser();
+  const { data: me } = useSession();
   const signOutMutation = useSignOut();
   const { data: categories } = useCategories(space?.id);
 
@@ -72,7 +72,7 @@ function AppLayout() {
             members={space.members}
             categories={categories}
             viewerId={me.id}
-            today={TODAY}
+            today={today()}
             onDone={close}
           />
         ) : null}

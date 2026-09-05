@@ -1,48 +1,29 @@
 import type { CreateTransactionInput, Transaction, TransactionQuery } from '@duo/shared';
 
-import { CURRENT_MONTH, db, nextId } from './mock-db';
-import { mockRequest } from './client';
+import { request } from './http';
 
-function matches(transaction: Transaction, query: TransactionQuery): boolean {
-  if (transaction.spaceId !== query.spaceId) return false;
-  const month = query.month ?? CURRENT_MONTH;
-  if (!transaction.date.startsWith(month)) return false;
-  if (query.kind && transaction.kind !== query.kind) return false;
-  if (query.categoryId && transaction.categoryId !== query.categoryId) return false;
-  if (query.owner && query.owner !== 'all') {
-    const involved = transaction.payerId === query.owner || transaction.split === 'equal';
-    if (!involved) return false;
-  }
-  return true;
-}
+function toSearch(query: TransactionQuery): string {
+  const params = new URLSearchParams({ spaceId: query.spaceId });
 
-function byDateDesc(a: Transaction, b: Transaction): number {
-  return b.date.localeCompare(a.date) || b.id.localeCompare(a.id);
+  if (query.month) params.set('month', query.month);
+  if (query.owner && query.owner !== 'all') params.set('ownerId', query.owner);
+  if (query.kind) params.set('kind', query.kind);
+  if (query.categoryId) params.set('categoryId', query.categoryId);
+  if (query.limit) params.set('limit', String(query.limit));
+
+  return params.toString();
 }
 
 export function listTransactions(query: TransactionQuery): Promise<Transaction[]> {
-  return mockRequest(() => {
-    const rows = db.transactions
-      .filter((transaction) => matches(transaction, query))
-      .toSorted(byDateDesc);
-    return query.limit ? rows.slice(0, query.limit) : rows;
-  });
+  return request<Transaction[]>(`/transactions?${toSearch(query)}`);
 }
 
 export function createTransaction(input: CreateTransactionInput): Promise<Transaction> {
-  return mockRequest(() => {
-    const transaction: Transaction = {
-      ...input,
-      id: nextId('txn'),
-      createdAt: new Date().toISOString(),
-    };
-    db.transactions = [transaction, ...db.transactions];
-    return transaction;
-  });
+  return request<Transaction>('/transactions', { method: 'POST', body: input });
 }
 
-export function deleteTransaction(id: string): Promise<void> {
-  return mockRequest(() => {
-    db.transactions = db.transactions.filter((transaction) => transaction.id !== id);
+export function deleteTransaction(id: string, spaceId: string): Promise<void> {
+  return request<void>(`/transactions/${id}?spaceId=${encodeURIComponent(spaceId)}`, {
+    method: 'DELETE',
   });
 }

@@ -1,32 +1,28 @@
 import type { Category, CreateCategoryInput } from '@duo/shared';
 
-import { db, nextId } from './mock-db';
-import { mockRequest } from './client';
+import { request } from './http';
 
 export function listCategories(spaceId: string): Promise<Category[]> {
-  return mockRequest(() => db.categories.filter((category) => category.spaceId === spaceId));
+  return request<Category[]>(`/categories?spaceId=${encodeURIComponent(spaceId)}`);
 }
 
 export function createCategory(input: CreateCategoryInput): Promise<Category> {
-  return mockRequest(() => {
-    const category: Category = { ...input, id: nextId('cat') };
-    db.categories = [...db.categories, category];
-    return category;
+  return request<Category>('/categories', { method: 'POST', body: input });
+}
+
+export function updateCategory(
+  id: string,
+  spaceId: string,
+  patch: Partial<CreateCategoryInput>,
+): Promise<Category> {
+  return request<Category>(`/categories/${id}?spaceId=${encodeURIComponent(spaceId)}`, {
+    method: 'PATCH',
+    body: patch,
   });
 }
 
-export function updateCategory(id: string, patch: Partial<CreateCategoryInput>): Promise<Category> {
-  return mockRequest(() => {
-    const index = db.categories.findIndex((category) => category.id === id);
-    if (index < 0) throw new Error(`Category ${id} not found.`);
-    const updated = { ...db.categories[index]!, ...patch };
-    db.categories = db.categories.with(index, updated);
-    return updated;
-  });
-}
-
-export function deleteCategory(id: string): Promise<void> {
-  return mockRequest(() => {
-    db.categories = db.categories.filter((category) => category.id !== id);
+export function deleteCategory(id: string, spaceId: string): Promise<void> {
+  return request<void>(`/categories/${id}?spaceId=${encodeURIComponent(spaceId)}`, {
+    method: 'DELETE',
   });
 }

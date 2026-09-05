@@ -52,10 +52,12 @@ export interface AmountDisplayProps extends VariantProps<typeof amountDisplay> {
 
 export function AmountDisplay({ cents, size, tone, align, className }: AmountDisplayProps) {
   const styles = amountDisplay({ size, tone, align });
+  const negative = cents < 0;
+
   return (
     <p className={styles.root({ class: className })}>
-      <span className={styles.symbol()}>R$</span>
-      <span className={styles.value()}>{formatAmount(cents)}</span>
+      <span className={styles.symbol()}>{negative ? '− R$' : 'R$'}</span>
+      <span className={styles.value()}>{formatAmount(Math.abs(cents))}</span>
     </p>
   );
 }

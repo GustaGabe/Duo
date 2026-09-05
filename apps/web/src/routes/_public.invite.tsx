@@ -5,14 +5,15 @@ import { AuthShell } from '@/components/layout/auth-shell';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Skeleton, Stepper } from '@/components/ui/misc';
-import { useCurrentUser, useSpaces } from '@/hooks/use-spaces';
+import { useSession } from '@/hooks/use-session';
+import { useSpaces } from '@/hooks/use-spaces';
 
 export const Route = createFileRoute('/_public/invite')({ component: InvitePage });
 
 function InvitePage() {
   const navigate = useNavigate();
   const { data: spaces } = useSpaces();
-  const { data: me } = useCurrentUser();
+  const { data: me } = useSession();
   const first = spaces?.[0];
 
   return (

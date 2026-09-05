@@ -25,5 +25,8 @@ export function useCreateTransaction() {
 
 export function useDeleteTransaction() {
   const client = useQueryClient();
-  return useMutation({ mutationFn: deleteTransaction, onSuccess: () => invalidateAll(client) });
+  return useMutation({
+    mutationFn: ({ id, spaceId }: { id: string; spaceId: string }) => deleteTransaction(id, spaceId),
+    onSuccess: () => invalidateAll(client),
+  });
 }

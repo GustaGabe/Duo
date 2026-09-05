@@ -26,13 +26,23 @@ export function useCreateCategory() {
 export function useUpdateCategory() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, patch }: { id: string; patch: Partial<CreateCategoryInput> }) =>
-      updateCategory(id, patch),
+    mutationFn: ({
+      id,
+      spaceId,
+      patch,
+    }: {
+      id: string;
+      spaceId: string;
+      patch: Partial<CreateCategoryInput>;
+    }) => updateCategory(id, spaceId, patch),
     onSuccess: () => invalidate(client),
   });
 }
 
 export function useDeleteCategory() {
   const client = useQueryClient();
-  return useMutation({ mutationFn: deleteCategory, onSuccess: () => invalidate(client) });
+  return useMutation({
+    mutationFn: ({ id, spaceId }: { id: string; spaceId: string }) => deleteCategory(id, spaceId),
+    onSuccess: () => invalidate(client),
+  });
 }

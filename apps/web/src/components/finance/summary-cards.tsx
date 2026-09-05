@@ -10,7 +10,7 @@ import { ownerBar, ownerDot } from '@/lib/owner';
 export function BalanceHero({ summary }: { summary: MonthSummary }) {
   return (
     <div>
-      <p className="text-sm text-muted">Saldo do casal · {formatMonthName(summary.month)}</p>
+      <p className="text-sm text-muted">Saldo · {formatMonthName(summary.month)}</p>
       <AmountDisplay cents={summary.balanceCents} className="mt-0.5" />
     </div>
   );
@@ -19,7 +19,7 @@ export function BalanceHero({ summary }: { summary: MonthSummary }) {
 export function BalanceCard({ summary }: { summary: MonthSummary }) {
   return (
     <Card tone="accent" className="flex flex-col justify-center">
-      <p className="text-label text-on-accent/78">Saldo do casal</p>
+      <p className="text-label text-on-accent/78">Saldo do espaço</p>
       <AmountDisplay cents={summary.balanceCents} size="money" tone="on-accent" className="mt-1" />
       <div className="mt-4.5 flex gap-6">
         <div>

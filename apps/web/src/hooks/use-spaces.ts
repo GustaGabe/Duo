@@ -3,8 +3,8 @@ import { useEffect, useMemo } from 'react';
 
 import {
   createSpace,
-  getCurrentUser,
   inviteToSpace,
+  joinSpace,
   leaveSpace,
   listSpaces,
   removeMember,
@@ -14,10 +14,6 @@ import { spaceTones } from '@/components/spaces/space-mark';
 import { useActiveSpaceStore } from '@/lib/active-space';
 
 import { queryKeys } from './queries';
-
-export function useCurrentUser() {
-  return useQuery({ queryKey: queryKeys.currentUser, queryFn: getCurrentUser });
-}
 
 export function useSpaces() {
   return useQuery({ queryKey: queryKeys.spaces, queryFn: listSpaces });
@@ -70,6 +66,18 @@ export function useInviteToSpace() {
 export function useRemoveMember() {
   const client = useQueryClient();
   return useMutation({ mutationFn: removeMember, onSuccess: () => invalidateSpaces(client) });
+}
+
+export function useJoinSpace() {
+  const client = useQueryClient();
+  const setSpaceId = useActiveSpaceStore((state) => state.setSpaceId);
+  return useMutation({
+    mutationFn: joinSpace,
+    onSuccess: (space) => {
+      invalidateSpaces(client);
+      setSpaceId(space.id);
+    },
+  });
 }
 
 export function useLeaveSpace() {

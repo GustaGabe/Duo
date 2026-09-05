@@ -23,6 +23,14 @@ export function CategoryProgressList({
 
   const top = rows[0]?.entry.spentCents ?? 1;
 
+  if (rows.length === 0) {
+    return (
+      <p className="text-body text-muted">
+        Nenhum gasto por categoria neste mês.
+      </p>
+    );
+  }
+
   return (
     <ul className="flex flex-col gap-3.5">
       {rows.map(({ entry, category }) => (

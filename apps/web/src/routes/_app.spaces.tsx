@@ -2,6 +2,7 @@ import type { Space } from '@duo/shared';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 
+import { JoinSpaceForm } from '@/components/spaces/join-space-form';
 import { SpaceForm } from '@/components/spaces/space-form';
 import { SpaceMembers } from '@/components/spaces/space-members';
 import { SpaceMark } from '@/components/spaces/space-mark';
@@ -11,15 +12,17 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Modal } from '@/components/ui/modal';
 import { Skeleton } from '@/components/ui/misc';
-import { useActiveSpace, useCurrentUser } from '@/hooks/use-spaces';
+import { useSession } from '@/hooks/use-session';
+import { useActiveSpace } from '@/hooks/use-spaces';
 import { cn } from '@/lib/cn';
 
 export const Route = createFileRoute('/_app/spaces')({ component: SpacesPage });
 
 function SpacesPage() {
   const { space: active, spaces, tones, setSpaceId } = useActiveSpace();
-  const { data: me } = useCurrentUser();
+  const { data: me } = useSession();
   const [creating, setCreating] = useState(false);
+  const [joining, setJoining] = useState(false);
   const [managing, setManaging] = useState<Space | null>(null);
 
   if (!spaces || !me) return <Skeleton className="h-96" />;
@@ -32,9 +35,12 @@ function SpacesPage() {
         title="Espaços"
         subtitle={`${spaces.length} ${spaces.length === 1 ? 'espaço' : 'espaços'} · ${people} ${people === 1 ? 'pessoa' : 'pessoas'} ao todo`}
         actions={
-          <Button className="hidden lg:inline-flex" onClick={() => setCreating(true)}>
-            + Novo espaço
-          </Button>
+          <div className="hidden gap-3 lg:flex">
+            <Button variant="secondary" onClick={() => setJoining(true)}>
+              Entrar com código
+            </Button>
+            <Button onClick={() => setCreating(true)}>+ Novo espaço</Button>
+          </div>
         }
       />
 
@@ -111,8 +117,16 @@ function SpacesPage() {
         </li>
       </ul>
 
+      <Button variant="secondary" block className="lg:hidden" onClick={() => setJoining(true)}>
+        Entrar com código
+      </Button>
+
       <Modal open={creating} onClose={() => setCreating(false)} title="Novo espaço" size="sm">
         <SpaceForm onDone={() => setCreating(false)} />
+      </Modal>
+
+      <Modal open={joining} onClose={() => setJoining(false)} title="Entrar em um espaço" size="sm">
+        <JoinSpaceForm onDone={() => setJoining(false)} />
       </Modal>
 
       <Modal

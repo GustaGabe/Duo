@@ -8,15 +8,7 @@ import { useCreateCategory } from '@/hooks/use-categories';
 import { CATEGORY_COLORS, suggestTag } from '@/lib/category';
 import { digitsToCents, formatAmount } from '@/lib/format';
 
-export function CategoryForm({
-  spaceId,
-  ownerId,
-  onDone,
-}: {
-  spaceId: string;
-  ownerId: string;
-  onDone: () => void;
-}) {
+export function CategoryForm({ spaceId, onDone }: { spaceId: string; onDone: () => void }) {
   const [name, setName] = useState('');
   const [tag, setTag] = useState('');
   const [kind] = useState<TransactionKind>('expense');
@@ -40,7 +32,6 @@ export function CategoryForm({
       color,
       monthlyLimitCents: limitCents > 0 ? limitCents : null,
       scope,
-      ownerId: scope === 'private' ? ownerId : null,
     });
     onDone();
   }

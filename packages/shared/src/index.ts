@@ -144,4 +144,5 @@ export interface TransactionQuery {
 
 export type CreateTransactionInput = Omit<Transaction, 'id' | 'createdAt'>;
 
-export type CreateCategoryInput = Omit<Category, 'id'>;
+/** `ownerId` is derived from the session on the server, never sent by the client. */
+export type CreateCategoryInput = Omit<Category, 'id' | 'ownerId'>;

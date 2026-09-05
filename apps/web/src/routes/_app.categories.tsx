@@ -12,10 +12,11 @@ import { DataTable, type Column } from '@/components/ui/data-table';
 import { Input } from '@/components/ui/field';
 import { Modal } from '@/components/ui/modal';
 import { Progress } from '@/components/ui/progress';
-import { Skeleton } from '@/components/ui/misc';
+import { EmptyState, Skeleton } from '@/components/ui/misc';
 import { TagSquare } from '@/components/ui/tag-square';
 import { useCategories } from '@/hooks/use-categories';
-import { useActiveSpace, useCurrentUser } from '@/hooks/use-spaces';
+import { useSession } from '@/hooks/use-session';
+import { useActiveSpace } from '@/hooks/use-spaces';
 import { useMonthSummary } from '@/hooks/use-summary';
 import { visibleCategories } from '@/lib/category';
 import { formatBRL } from '@/lib/format';
@@ -30,7 +31,7 @@ function Categorias() {
   const [creating, setCreating] = useState(false);
   const { space } = useActiveSpace();
   const { data: categories } = useCategories(space?.id);
-  const { data: me } = useCurrentUser();
+  const { data: me } = useSession();
   const { data: summary } = useMonthSummary(space?.id);
 
   if (!space || !categories || !summary || !me) return <Skeleton className="h-96" />;
@@ -137,7 +138,12 @@ function Categorias() {
       </div>
 
       <Card className="hidden min-h-0 flex-1 flex-col lg:flex lg:p-5.5">
-        <DataTable columns={columns} rows={rows} getRowKey={(row) => row.id} />
+        <DataTable
+          columns={columns}
+          rows={rows}
+          getRowKey={(row) => row.id}
+          empty="Nenhuma categoria por aqui ainda."
+        />
         <button
           type="button"
           onClick={() => setCreating(true)}
@@ -148,6 +154,12 @@ function Categorias() {
       </Card>
 
       <Card className="lg:hidden">
+        {rows.length === 0 ? (
+          <EmptyState
+            title="Nenhuma categoria ainda"
+            description="Categorias organizam os lançamentos e dão o limite mensal de cada tipo de gasto."
+          />
+        ) : null}
         <ul className="flex flex-col divide-y divide-line-soft">
           {rows.map((category) => (
             <li key={category.id} className="flex items-center gap-3.5 py-3">
@@ -171,7 +183,7 @@ function Categorias() {
       </Card>
 
       <Modal open={creating} onClose={() => setCreating(false)} title="Nova categoria" size="sm">
-        <CategoryForm spaceId={space.id} ownerId={me.id} onDone={() => setCreating(false)} />
+        <CategoryForm spaceId={space.id} onDone={() => setCreating(false)} />
       </Modal>
     </>
   );
