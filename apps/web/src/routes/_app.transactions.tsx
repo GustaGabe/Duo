@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 
 import { today } from '@/lib/clock';
+import { MonthPicker } from '@/components/finance/month-picker';
 import { TransactionForm } from '@/components/finance/transaction-form';
 import { TransactionItem } from '@/components/finance/transaction-item';
 import { PageHeader } from '@/components/layout/page-header';
@@ -19,18 +20,22 @@ import { useSession } from '@/hooks/use-session';
 import { useActiveSpace } from '@/hooks/use-spaces';
 import { useTransactions } from '@/hooks/use-transactions';
 import { cn } from '@/lib/cn';
-import { formatRelativeDay } from '@/lib/format';
+import { formatMonthLong, formatRelativeDay } from '@/lib/format';
 import { ownerDot } from '@/lib/owner';
+import { useSelectedMonthStore } from '@/lib/selected-month';
 
 export const Route = createFileRoute('/_app/transactions')({ component: Lancamentos });
 
 function Lancamentos() {
   const [owner, setOwner] = useState('all');
   const [creating, setCreating] = useState(false);
+  const month = useSelectedMonthStore((state) => state.month);
   const { space } = useActiveSpace();
   const { data: me } = useSession();
   const { data: categories } = useCategories(space?.id);
-  const { data: transactions } = useTransactions(space ? { spaceId: space.id, owner } : undefined);
+  const { data: transactions } = useTransactions(
+    space ? { spaceId: space.id, month, owner } : undefined,
+  );
 
   if (!space || !categories || !transactions || !me) return <Skeleton className="h-96" />;
 
@@ -96,16 +101,26 @@ function Lancamentos() {
     <>
       <PageHeader
         title="Lançamentos"
-        subtitle={`${space.name} · ${transactions.length} lançamentos neste mês`}
+        subtitle={`${space.name} · ${transactions.length} lançamentos · ${formatMonthLong(month)}`}
         actions={
-          <div className="hidden items-center gap-3 lg:flex">
-            {filters.map((filter) => (
-              <Chip key={filter.value} selected={owner === filter.value} onClick={() => setOwner(filter.value)}>
-                {filter.label}
-              </Chip>
-            ))}
-            <Button onClick={() => setCreating(true)}>+ Novo lançamento</Button>
-          </div>
+          <>
+            <div className="lg:hidden">
+              <MonthPicker />
+            </div>
+            <div className="hidden items-center gap-3 lg:flex">
+              {filters.map((filter) => (
+                <Chip
+                  key={filter.value}
+                  selected={owner === filter.value}
+                  onClick={() => setOwner(filter.value)}
+                >
+                  {filter.label}
+                </Chip>
+              ))}
+              <MonthPicker />
+              <Button onClick={() => setCreating(true)}>+ Novo lançamento</Button>
+            </div>
+          </>
         }
       />
 

@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import { today } from '@/lib/clock';
 import { CategoryProgressList } from '@/components/finance/category-progress';
+import { MonthPicker } from '@/components/finance/month-picker';
 import { SettlementCard } from '@/components/finance/settlement-card';
 import {
   BalanceCard,
@@ -22,16 +23,18 @@ import { useActiveSpace } from '@/hooks/use-spaces';
 import { useMonthSummary } from '@/hooks/use-summary';
 import { useTransactions } from '@/hooks/use-transactions';
 import { formatMonthLong } from '@/lib/format';
+import { useSelectedMonthStore } from '@/lib/selected-month';
 
 export const Route = createFileRoute('/_app/dashboard')({ component: Painel });
 
 function Painel() {
   const [owner, setOwner] = useState('all');
+  const month = useSelectedMonthStore((state) => state.month);
   const { space } = useActiveSpace();
   const { data: categories } = useCategories(space?.id);
-  const { data: summary } = useMonthSummary(space?.id);
+  const { data: summary } = useMonthSummary(space?.id, month);
   const { data: transactions } = useTransactions(
-    space ? { spaceId: space.id, owner, limit: 6 } : undefined,
+    space ? { spaceId: space.id, month, owner, limit: 6 } : undefined,
   );
 
   if (!space || !summary || !categories) {
@@ -64,7 +67,7 @@ function Painel() {
           actions={
             <>
               <ThemeToggle />
-              <Button variant="secondary">Este mês</Button>
+              <MonthPicker />
               <Button variant="secondary">Exportar</Button>
             </>
           }
@@ -73,7 +76,10 @@ function Painel() {
 
       <div className="grid gap-5 lg:grid-cols-[1.15fr_1fr_1fr]">
         <div className="lg:hidden">
-          <BalanceHero summary={summary} />
+          <div className="flex items-start justify-between gap-4">
+            <BalanceHero summary={summary} />
+            <MonthPicker />
+          </div>
           <InOutCard summary={summary} className="mt-4.5" />
         </div>
 

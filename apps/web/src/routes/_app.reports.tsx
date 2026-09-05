@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 
 import { CategoryProgressList } from '@/components/finance/category-progress';
+import { MonthPicker } from '@/components/finance/month-picker';
 import { PageHeader } from '@/components/layout/page-header';
 import { Card } from '@/components/ui/card';
 import { EmptyState, Skeleton } from '@/components/ui/misc';
@@ -8,19 +9,25 @@ import { useCategories } from '@/hooks/use-categories';
 import { useActiveSpace } from '@/hooks/use-spaces';
 import { useMonthSummary } from '@/hooks/use-summary';
 import { formatBRL, formatMonthLong } from '@/lib/format';
+import { useSelectedMonthStore } from '@/lib/selected-month';
 
 export const Route = createFileRoute('/_app/reports')({ component: ReportsPage });
 
 function ReportsPage() {
+  const month = useSelectedMonthStore((state) => state.month);
   const { space } = useActiveSpace();
-  const { data: summary } = useMonthSummary(space?.id);
+  const { data: summary } = useMonthSummary(space?.id, month);
   const { data: categories } = useCategories(space?.id);
 
   if (!space || !summary || !categories) return <Skeleton className="h-96" />;
 
   return (
     <>
-      <PageHeader title="Relatórios" subtitle={`${space.name} · ${formatMonthLong(summary.month)}`} />
+      <PageHeader
+        title="Relatórios"
+        subtitle={`${space.name} · ${formatMonthLong(summary.month)}`}
+        actions={<MonthPicker />}
+      />
 
       <div className="grid gap-5 lg:grid-cols-3">
         <Card>
