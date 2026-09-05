@@ -34,6 +34,8 @@ services:
       NODE_ENV: production
       PORT: 3000
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?defina no .env}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?defina no .env}
     healthcheck:
       test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:3000/']
       interval: 10s
