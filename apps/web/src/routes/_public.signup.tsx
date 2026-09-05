@@ -3,7 +3,6 @@ import { useState } from 'react';
 
 import { AuthShell } from '@/components/layout/auth-shell';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Field, Input, Label } from '@/components/ui/field';
 import { Stepper } from '@/components/ui/misc';
 import { PasswordInput } from '@/components/ui/password-input';
@@ -19,13 +18,12 @@ function SignUpPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [accepted, setAccepted] = useState(false);
 
   const signUp = useSignUp();
   const failure = errorMessage(signUp.error);
 
   const strength = Math.min(3, Math.floor(password.length / 4));
-  const ready = name.trim().length > 1 && email.includes('@') && password.length >= 8 && accepted;
+  const ready = name.trim().length > 1 && email.includes('@') && password.length >= 8;
 
   return (
     <AuthShell logo={false}>
@@ -100,14 +98,6 @@ function SignUpPage() {
             ) : null}
           </div>
         </div>
-
-        <label className="flex cursor-pointer items-start gap-3 rounded-panel bg-surface-2 p-4">
-          <Checkbox checked={accepted} onChange={setAccepted} label="Aceito os termos" hideLabel />
-          <span className="text-label leading-snug text-ink-soft">
-            Aceito os <span className="font-semibold text-accent">termos</span> e a política de
-            privacidade do Duo.
-          </span>
-        </label>
 
         {failure ? (
           <p role="alert" className="text-caption font-medium text-accent">
