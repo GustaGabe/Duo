@@ -1,0 +1,15 @@
+**/node_modules
+**/dist
+**/build
+**/.git
+**/.turbo
+**/.vite
+**/coverage
+**/*.log
+**/.env
+**/.env.*
+!**/.env.example
+**/.DS_Store
+**/.claude
+**/tsconfig.tsbuildinfo
+apps/web/src/routeTree.gen.ts
