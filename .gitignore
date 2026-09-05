@@ -10,3 +10,6 @@ coverage/
 .vite/
 .turbo/
 apps/web/src/routeTree.gen.ts
+
+# TanStack Router build artifacts
+apps/web/.tanstack/

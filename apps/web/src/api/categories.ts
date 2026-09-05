@@ -3,8 +3,8 @@ import type { Category, CreateCategoryInput } from '@duo/shared';
 import { db, nextId } from './mock-db';
 import { mockRequest } from './client';
 
-export function listCategories(): Promise<Category[]> {
-  return mockRequest(() => db.categories);
+export function listCategories(spaceId: string): Promise<Category[]> {
+  return mockRequest(() => db.categories.filter((category) => category.spaceId === spaceId));
 }
 
 export function createCategory(input: CreateCategoryInput): Promise<Category> {

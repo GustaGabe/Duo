@@ -1,4 +1,4 @@
-import type { Category, Transaction, User } from '@duo/shared';
+import type { Category, SpaceMember, Transaction } from '@duo/shared';
 
 import { Money } from '@/components/ui/money';
 import { TagSquare } from '@/components/ui/tag-square';
@@ -9,7 +9,7 @@ import { ownerDot } from '@/lib/owner';
 export interface TransactionItemProps {
   transaction: Transaction;
   category?: Category;
-  payer?: User;
+  payer?: SpaceMember;
   today: string;
   onClick?: () => void;
   className?: string;

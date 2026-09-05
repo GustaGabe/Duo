@@ -1,11 +1,11 @@
-import type { MonthSummary, User } from '@duo/shared';
+import type { MonthSummary, SpaceMember } from '@duo/shared';
 
 import { Card } from '@/components/ui/card';
 import { AmountDisplay } from '@/components/ui/money';
 import { Progress, SplitBar } from '@/components/ui/progress';
 import { cn } from '@/lib/cn';
 import { formatBRL, formatBRLCompact, formatMonthName } from '@/lib/format';
-import { ownerDot } from '@/lib/owner';
+import { ownerBar, ownerDot } from '@/lib/owner';
 
 export function BalanceHero({ summary }: { summary: MonthSummary }) {
   return (
@@ -51,7 +51,7 @@ export function InOutCard({ summary, className }: { summary: MonthSummary; class
   );
 }
 
-export function WhoSpent({ summary, members }: { summary: MonthSummary; members: User[] }) {
+export function WhoSpent({ summary, members }: { summary: MonthSummary; members: SpaceMember[] }) {
   const first = summary.perPerson.find((person) => person.userId === members[0]?.id);
   const share = Math.round(first?.sharePercent ?? 50);
 
@@ -88,7 +88,7 @@ export function PersonSpendCard({
   member,
   summary,
 }: {
-  member: User;
+  member: SpaceMember;
   summary: MonthSummary;
 }) {
   const person = summary.perPerson.find((entry) => entry.userId === member.id);
@@ -107,7 +107,7 @@ export function PersonSpendCard({
       <Progress
         value={share}
         label={`Participação de ${member.name}`}
-        barClassName={member.slot === 'a' ? 'bg-owner-a' : 'bg-owner-b'}
+        barClassName={ownerBar[member.slot]}
         className="mt-4"
       />
     </Card>

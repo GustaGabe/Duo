@@ -1,4 +1,4 @@
-import type { OwnerSlot } from '@duo/shared';
+import type { MemberSlot } from '@duo/shared';
 
 import { initials as toInitials } from '@/lib/format';
 import { cn } from '@/lib/cn';
@@ -10,6 +10,8 @@ export const avatar = tv({
     slot: {
       a: 'bg-owner-a text-on-owner-a',
       b: 'bg-owner-b text-on-owner-b',
+      c: 'bg-owner-c text-on-owner-c',
+      d: 'bg-owner-d text-on-owner-d',
     },
     size: {
       sm: 'size-7 text-micro',
@@ -26,7 +28,7 @@ export type AvatarVariants = VariantProps<typeof avatar>;
 
 export interface AvatarProps extends AvatarVariants {
   name: string;
-  slot: OwnerSlot;
+  slot: MemberSlot;
   className?: string;
 }
 
@@ -39,7 +41,7 @@ export function Avatar({ name, slot, size, ringed, className }: AvatarProps) {
 }
 
 export interface AvatarStackProps {
-  people: { id: string; name: string; slot: OwnerSlot }[];
+  people: { id: string; name: string; slot: MemberSlot }[];
   size?: AvatarVariants['size'];
   className?: string;
 }

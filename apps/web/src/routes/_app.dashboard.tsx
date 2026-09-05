@@ -18,7 +18,7 @@ import { Card } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
 import { Skeleton } from '@/components/ui/misc';
 import { useCategories } from '@/hooks/use-categories';
-import { useCouple } from '@/hooks/use-couple';
+import { useActiveSpace } from '@/hooks/use-spaces';
 import { useMonthSummary } from '@/hooks/use-summary';
 import { useTransactions } from '@/hooks/use-transactions';
 import { formatMonthLong } from '@/lib/format';
@@ -27,12 +27,14 @@ export const Route = createFileRoute('/_app/dashboard')({ component: Painel });
 
 function Painel() {
   const [owner, setOwner] = useState('all');
-  const { data: couple } = useCouple();
-  const { data: categories } = useCategories();
-  const { data: summary } = useMonthSummary();
-  const { data: transactions } = useTransactions({ owner, limit: 6 });
+  const { space } = useActiveSpace();
+  const { data: categories } = useCategories(space?.id);
+  const { data: summary } = useMonthSummary(space?.id);
+  const { data: transactions } = useTransactions(
+    space ? { spaceId: space.id, owner, limit: 6 } : undefined,
+  );
 
-  if (!couple || !summary || !categories) {
+  if (!space || !summary || !categories) {
     return (
       <div className="flex flex-col gap-4">
         <Skeleton className="h-24" />
@@ -44,7 +46,7 @@ function Painel() {
 
   const filters = [
     { value: 'all', label: 'Ambos' },
-    ...couple.members.map((member) => ({
+    ...space.members.map((member) => ({
       value: member.id,
       label: member.name.split(' ')[0] ?? member.name,
     })),
@@ -55,7 +57,7 @@ function Painel() {
       <div className="hidden lg:block">
         <PageHeader
           title={formatMonthLong(summary.month)}
-          subtitle={`Painel compartilhado de ${couple.members.map((m) => m.name.split(' ')[0]).join(' e ')}`}
+          subtitle={`${space.name} · ${space.members.length} ${space.members.length === 1 ? 'pessoa' : 'pessoas'}`}
           actions={
             <>
               <ThemeToggle />
@@ -76,7 +78,7 @@ function Painel() {
           <BalanceCard summary={summary} />
         </div>
 
-        {couple.members.map((member) => (
+        {space.members.map((member) => (
           <div key={member.id} className="hidden lg:block">
             <PersonSpendCard member={member} summary={summary} />
           </div>
@@ -84,7 +86,7 @@ function Painel() {
       </div>
 
       <div className="lg:hidden">
-        <WhoSpent summary={summary} members={couple.members} />
+        <WhoSpent summary={summary} members={space.members} />
       </div>
 
       <div className="grid min-h-0 gap-5 lg:grid-cols-[1.6fr_1fr]">
@@ -111,7 +113,7 @@ function Painel() {
                 <TransactionItem
                   transaction={transaction}
                   category={categories.find((category) => category.id === transaction.categoryId)}
-                  payer={couple.members.find((member) => member.id === transaction.payerId)}
+                  payer={space.members.find((member) => member.id === transaction.payerId)}
                   today={TODAY}
                 />
               </li>
@@ -124,7 +126,7 @@ function Painel() {
             <h2 className="mb-4 text-body font-semibold text-ink">Por categoria</h2>
             <CategoryProgressList categories={categories} byCategory={summary.byCategory} />
           </Card>
-          <SettlementCard summary={summary} members={couple.members} onSettle={() => undefined} />
+          <SettlementCard summary={summary} members={space.members} onSettle={() => undefined} />
         </div>
       </div>
     </>

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { AvatarStack } from '@/components/ui/avatar';
-import { useCouple } from '@/hooks/use-couple';
+import { useActiveSpace } from '@/hooks/use-spaces';
 import { useTheme } from '@/lib/theme-context';
 
 export function PageHeader({
@@ -26,7 +26,7 @@ export function PageHeader({
 }
 
 export function MobileTopBar({ onMenu }: { onMenu: () => void }) {
-  const { data: couple } = useCouple();
+  const { space } = useActiveSpace();
 
   return (
     <div className="flex items-center justify-between lg:hidden">
@@ -39,7 +39,7 @@ export function MobileTopBar({ onMenu }: { onMenu: () => void }) {
         <span className="h-[2.5px] w-5.5 rounded-pill bg-ink" />
         <span className="h-[2.5px] w-3.5 rounded-pill bg-ink" />
       </button>
-      {couple ? <AvatarStack people={couple.members} size="lg" /> : null}
+      {space ? <AvatarStack people={space.members} size="lg" /> : null}
     </div>
   );
 }

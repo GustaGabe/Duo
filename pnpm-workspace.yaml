@@ -5,4 +5,6 @@ packages:
 # esbuild ships its binary in a per-platform optional package, so its install script
 # is allowed to run and link it.
 allowBuilds:
+  '@parcel/watcher': false
   esbuild: true
+  unrs-resolver: false

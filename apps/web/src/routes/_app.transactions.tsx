@@ -15,7 +15,7 @@ import { Money } from '@/components/ui/money';
 import { Skeleton } from '@/components/ui/misc';
 import { TagSquare } from '@/components/ui/tag-square';
 import { useCategories } from '@/hooks/use-categories';
-import { useCouple, useCurrentUser } from '@/hooks/use-couple';
+import { useActiveSpace, useCurrentUser } from '@/hooks/use-spaces';
 import { useTransactions } from '@/hooks/use-transactions';
 import { cn } from '@/lib/cn';
 import { formatRelativeDay } from '@/lib/format';
@@ -26,19 +26,19 @@ export const Route = createFileRoute('/_app/transactions')({ component: Lancamen
 function Lancamentos() {
   const [owner, setOwner] = useState('all');
   const [creating, setCreating] = useState(false);
-  const { data: couple } = useCouple();
+  const { space } = useActiveSpace();
   const { data: me } = useCurrentUser();
-  const { data: categories } = useCategories();
-  const { data: transactions } = useTransactions({ owner });
+  const { data: categories } = useCategories(space?.id);
+  const { data: transactions } = useTransactions(space ? { spaceId: space.id, owner } : undefined);
 
-  if (!couple || !categories || !transactions || !me) return <Skeleton className="h-96" />;
+  if (!space || !categories || !transactions || !me) return <Skeleton className="h-96" />;
 
   const category = (id: string) => categories.find((item) => item.id === id);
-  const payer = (id: string) => couple.members.find((member) => member.id === id);
+  const payer = (id: string) => space.members.find((member) => member.id === id);
 
   const filters = [
     { value: 'all', label: 'Ambos' },
-    ...couple.members.map((member) => ({
+    ...space.members.map((member) => ({
       value: member.id,
       label: member.name.split(' ')[0] ?? member.name,
     })),
@@ -92,7 +92,7 @@ function Lancamentos() {
     <>
       <PageHeader
         title="Lançamentos"
-        subtitle={`${transactions.length} lançamentos neste mês`}
+        subtitle={`${space.name} · ${transactions.length} lançamentos neste mês`}
         actions={
           <div className="hidden items-center gap-3 lg:flex">
             {filters.map((filter) => (
@@ -134,7 +134,8 @@ function Lancamentos() {
 
       <Modal open={creating} onClose={() => setCreating(false)} title="Novo lançamento" size="lg">
         <TransactionForm
-          members={couple.members}
+          spaceId={space.id}
+          members={space.members}
           categories={categories}
           viewerId={me.id}
           today={TODAY}

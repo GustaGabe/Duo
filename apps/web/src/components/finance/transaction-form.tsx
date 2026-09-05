@@ -1,4 +1,4 @@
-import type { Category, TransactionKind, User } from '@duo/shared';
+import type { Category, SpaceMember, TransactionKind } from '@duo/shared';
 import { useMemo, useState } from 'react';
 
 import { AmountKeypad } from '@/components/finance/amount-keypad';
@@ -14,18 +14,21 @@ import { useCreateTransaction } from '@/hooks/use-transactions';
 const payerOption = tv({
   base: 'h-11.5 cursor-pointer rounded-control border-[1.5px] px-3.5 text-left text-label font-medium transition-colors',
   variants: {
-    slot: { a: '', b: '' },
+    slot: { a: '', b: '', c: '', d: '' },
     selected: { true: '', false: 'border-line bg-surface text-ink-soft hover:bg-surface-3' },
   },
   compoundVariants: [
     { slot: 'a', selected: true, class: 'border-owner-a bg-owner-a text-on-owner-a' },
     { slot: 'b', selected: true, class: 'border-owner-b bg-owner-b text-on-owner-b' },
+    { slot: 'c', selected: true, class: 'border-owner-c bg-owner-c text-on-owner-c' },
+    { slot: 'd', selected: true, class: 'border-owner-d bg-owner-d text-on-owner-d' },
   ],
   defaultVariants: { selected: false },
 });
 
 export interface TransactionFormProps {
-  members: User[];
+  spaceId: string;
+  members: SpaceMember[];
   categories: Category[];
   viewerId: string;
   today: string;
@@ -34,6 +37,7 @@ export interface TransactionFormProps {
 }
 
 export function TransactionForm({
+  spaceId,
   members,
   categories,
   viewerId,
@@ -64,14 +68,20 @@ export function TransactionForm({
       label: member.name.split(' ')[0] ?? member.name,
       slot: member.slot,
     })),
-    ...(kind === 'expense'
-      ? [{ value: 'equal' as const, label: 'Dividir 50/50', slot: 'a' as const }]
+    ...(kind === 'expense' && members.length > 1
+      ? [
+          {
+            value: 'equal' as const,
+            label: `Dividir entre ${members.length}`,
+            slot: 'a' as const,
+          },
+        ]
       : []),
   ];
 
   const splitNote =
     payer === 'equal'
-      ? `${formatBRL(Math.round(cents / 2))} para cada um.`
+      ? `${formatBRL(Math.round(cents / members.length))} para cada um.`
       : `Lançado no nome de ${members.find((member) => member.id === payer)?.name.split(' ')[0] ?? '—'}, visível para os dois.`;
 
   const canSubmit = cents > 0 && description.trim().length > 0 && Boolean(selectedCategory);
@@ -79,6 +89,7 @@ export function TransactionForm({
   async function submit() {
     if (!canSubmit || !selectedCategory) return;
     await create.mutateAsync({
+      spaceId,
       kind,
       description: description.trim(),
       amountCents: cents,

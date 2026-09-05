@@ -4,7 +4,9 @@ export type IsoDate = string;
 
 export type IsoMonth = string;
 
-export type OwnerSlot = 'a' | 'b';
+export type MemberSlot = 'a' | 'b' | 'c' | 'd';
+
+export type SpaceRole = 'owner' | 'member';
 
 export type TransactionKind = 'expense' | 'income';
 
@@ -23,25 +25,38 @@ export interface User {
   name: string;
   email: string;
   initials: string;
-  slot: OwnerSlot;
 }
 
-export interface CoupleInvite {
+export interface SpaceMember extends User {
+  slot: MemberSlot;
+  role: SpaceRole;
+  joinedAt: string;
+}
+
+export interface SpaceInvite {
   id: Id;
   email: string;
   status: 'pending' | 'accepted' | 'expired';
   sentAt: string;
 }
 
-export interface Couple {
+export interface Space {
   id: Id;
+  name: string;
   code: string;
-  members: User[];
-  invites: CoupleInvite[];
+  ownerId: Id;
+  members: SpaceMember[];
+  invites: SpaceInvite[];
+  createdAt: string;
+}
+
+export interface CreateSpaceInput {
+  name: string;
 }
 
 export interface Category {
   id: Id;
+  spaceId: Id;
   name: string;
   tag: string;
   description: string;
@@ -54,6 +69,7 @@ export interface Category {
 
 export interface Transaction {
   id: Id;
+  spaceId: Id;
   kind: TransactionKind;
   description: string;
   amountCents: number;
@@ -87,18 +103,20 @@ export interface Settlement {
 }
 
 export interface MonthSummary {
+  spaceId: Id;
   month: IsoMonth;
   incomeCents: number;
   expenseCents: number;
   balanceCents: number;
   perPerson: PersonSummary[];
   byCategory: CategorySummary[];
-  settlement: Settlement | null;
+  settlements: Settlement[];
 }
 
 export type OwnerFilter = 'all' | Id;
 
 export interface TransactionQuery {
+  spaceId: Id;
   month?: IsoMonth;
   owner?: OwnerFilter;
   kind?: TransactionKind;

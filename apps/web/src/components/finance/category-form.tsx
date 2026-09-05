@@ -3,21 +3,26 @@ import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Field, Input, Label } from '@/components/ui/field';
-import { Segmented } from '@/components/ui/segmented';
-import { Switch } from '@/components/ui/switch';
 import { ColorSwatch, TagSquare } from '@/components/ui/tag-square';
 import { useCreateCategory } from '@/hooks/use-categories';
 import { CATEGORY_COLORS, suggestTag } from '@/lib/category';
-import { cn } from '@/lib/cn';
 import { digitsToCents, formatAmount } from '@/lib/format';
 
-export function CategoryForm({ ownerId, onDone }: { ownerId: string; onDone: () => void }) {
+export function CategoryForm({
+  spaceId,
+  ownerId,
+  onDone,
+}: {
+  spaceId: string;
+  ownerId: string;
+  onDone: () => void;
+}) {
   const [name, setName] = useState('');
   const [tag, setTag] = useState('');
-  const [kind, setKind] = useState<TransactionKind>('expense');
+  const [kind] = useState<TransactionKind>('expense');
   const [color, setColor] = useState<CategoryColor>('accent');
   const [limitDigits, setLimitDigits] = useState('');
-  const [shared, setShared] = useState(true);
+  const [shared] = useState(true);
 
   const create = useCreateCategory();
   const badge = tag || (name ? suggestTag(name) : '??');
@@ -27,9 +32,10 @@ export function CategoryForm({ ownerId, onDone }: { ownerId: string; onDone: () 
     if (!name.trim()) return;
     const scope: CategoryScope = shared ? 'shared' : 'private';
     await create.mutateAsync({
+      spaceId,
       name: name.trim(),
       tag: badge,
-      description: shared ? 'Compartilhada com o casal' : 'Só aparece para você',
+      description: shared ? 'Compartilhada com o espaço' : 'Só aparece para você',
       kind,
       color,
       monthlyLimitCents: limitCents > 0 ? limitCents : null,
@@ -55,7 +61,8 @@ export function CategoryForm({ ownerId, onDone }: { ownerId: string; onDone: () 
         </div>
       </div>
 
-      <Field label="Nome">
+    <div className="flex w-full gap-2">
+        <Field label="Nome" className="flex-1">
         {(id) => (
           <Input
             id={id}
@@ -63,25 +70,12 @@ export function CategoryForm({ ownerId, onDone }: { ownerId: string; onDone: () 
             onChange={(event) => setName(event.target.value)}
             placeholder="Pets"
             autoFocus
+            className="w-full"
           />
         )}
       </Field>
 
-      <div className="flex flex-col gap-2">
-        <Label>Tipo</Label>
-        <Segmented
-          aria-label="Tipo da categoria"
-          shape="block"
-          value={kind}
-          onChange={setKind}
-          options={[
-            { value: 'expense', label: 'Saída' },
-            { value: 'income', label: 'Entrada' },
-          ]}
-        />
-      </div>
-
-      <Field label="Sigla" hint="Duas letras que aparecem no quadradinho da lista.">
+      <Field label="Sigla" className="w-15">
         {(id) => (
           <Input
             id={id}
@@ -89,10 +83,11 @@ export function CategoryForm({ ownerId, onDone }: { ownerId: string; onDone: () 
             maxLength={2}
             placeholder={suggestTag(name || 'Nova')}
             onChange={(event) => setTag(event.target.value.toUpperCase())}
-            className="w-24 font-mono tracking-widest uppercase"
+            className="w-15 font-mono tracking-widest uppercase"
           />
         )}
       </Field>
+    </div>
 
       <div className="flex flex-col gap-2.5">
         <Label>Cor</Label>
@@ -119,13 +114,6 @@ export function CategoryForm({ ownerId, onDone }: { ownerId: string; onDone: () 
           />
         )}
       </Field>
-
-      <div className={cn('flex items-center gap-3 rounded-panel bg-surface-2 p-4')}>
-        <p className="flex-1 text-label leading-snug text-ink-soft">
-          Compartilhar com o casal — aparece no painel dos dois.
-        </p>
-        <Switch checked={shared} onChange={setShared} label="Compartilhar categoria" hideLabel />
-      </div>
 
       <Button type="submit" size="lg" block disabled={!name.trim() || create.isPending}>
         {create.isPending ? 'Salvando…' : 'Salvar categoria'}

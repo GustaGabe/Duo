@@ -5,20 +5,22 @@ import { PageHeader } from '@/components/layout/page-header';
 import { Card } from '@/components/ui/card';
 import { EmptyState, Skeleton } from '@/components/ui/misc';
 import { useCategories } from '@/hooks/use-categories';
+import { useActiveSpace } from '@/hooks/use-spaces';
 import { useMonthSummary } from '@/hooks/use-summary';
 import { formatBRL, formatMonthLong } from '@/lib/format';
 
 export const Route = createFileRoute('/_app/reports')({ component: ReportsPage });
 
 function ReportsPage() {
-  const { data: summary } = useMonthSummary();
-  const { data: categories } = useCategories();
+  const { space } = useActiveSpace();
+  const { data: summary } = useMonthSummary(space?.id);
+  const { data: categories } = useCategories(space?.id);
 
-  if (!summary || !categories) return <Skeleton className="h-96" />;
+  if (!space || !summary || !categories) return <Skeleton className="h-96" />;
 
   return (
     <>
-      <PageHeader title="Relatórios" subtitle={formatMonthLong(summary.month)} />
+      <PageHeader title="Relatórios" subtitle={`${space.name} · ${formatMonthLong(summary.month)}`} />
 
       <div className="grid gap-5 lg:grid-cols-3">
         <Card>

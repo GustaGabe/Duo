@@ -5,16 +5,22 @@ import { createCategory, deleteCategory, listCategories, updateCategory } from '
 
 import { queryKeys } from './queries';
 
-export function useCategories() {
-  return useQuery({ queryKey: queryKeys.categories, queryFn: listCategories });
+export function useCategories(spaceId: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.categories(spaceId ?? ''),
+    queryFn: () => listCategories(spaceId!),
+    enabled: Boolean(spaceId),
+  });
+}
+
+function invalidate(client: ReturnType<typeof useQueryClient>) {
+  void client.invalidateQueries({ queryKey: ['categories'] });
+  void client.invalidateQueries({ queryKey: ['summary'] });
 }
 
 export function useCreateCategory() {
   const client = useQueryClient();
-  return useMutation({
-    mutationFn: createCategory,
-    onSuccess: () => client.invalidateQueries({ queryKey: queryKeys.categories }),
-  });
+  return useMutation({ mutationFn: createCategory, onSuccess: () => invalidate(client) });
 }
 
 export function useUpdateCategory() {
@@ -22,14 +28,11 @@ export function useUpdateCategory() {
   return useMutation({
     mutationFn: ({ id, patch }: { id: string; patch: Partial<CreateCategoryInput> }) =>
       updateCategory(id, patch),
-    onSuccess: () => client.invalidateQueries({ queryKey: queryKeys.categories }),
+    onSuccess: () => invalidate(client),
   });
 }
 
 export function useDeleteCategory() {
   const client = useQueryClient();
-  return useMutation({
-    mutationFn: deleteCategory,
-    onSuccess: () => client.invalidateQueries({ queryKey: queryKeys.categories }),
-  });
+  return useMutation({ mutationFn: deleteCategory, onSuccess: () => invalidate(client) });
 }

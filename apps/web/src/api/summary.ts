@@ -10,41 +10,80 @@ import type {
 import { CURRENT_MONTH, db } from './mock-db';
 import { mockRequest } from './client';
 
-function carriedBy(transaction: Transaction, userId: string): number {
-  if (transaction.split === 'equal') return Math.round(transaction.amountCents / 2);
+function carriedBy(transaction: Transaction, userId: string, memberCount: number): number {
+  if (transaction.split === 'equal') return Math.round(transaction.amountCents / memberCount);
   return transaction.payerId === userId ? transaction.amountCents : 0;
 }
 
-function buildSettlement(expenses: Transaction[], memberIds: string[]): Settlement | null {
-  const [first, second] = memberIds;
-  if (!first || !second) return null;
+function buildSettlements(expenses: Transaction[], memberIds: string[]): Settlement[] {
+  if (memberIds.length < 2) return [];
 
   const split = expenses.filter((transaction) => transaction.split === 'equal');
-  if (split.length === 0) return null;
+  if (split.length === 0) return [];
 
-  const paidByFirst = split
-    .filter((transaction) => transaction.payerId === first)
-    .reduce((total, transaction) => total + transaction.amountCents, 0);
-  const totalSplit = split.reduce((total, transaction) => total + transaction.amountCents, 0);
-  const credit = paidByFirst - Math.round(totalSplit / 2);
+  const share = split.reduce((total, transaction) => total + transaction.amountCents, 0) / memberIds.length;
 
-  if (credit === 0) return null;
-  return credit > 0
-    ? { fromUserId: second, toUserId: first, amountCents: credit, settled: false }
-    : { fromUserId: first, toUserId: second, amountCents: -credit, settled: false };
+  const balances = memberIds.map((userId) => ({
+    userId,
+    net:
+      split
+        .filter((transaction) => transaction.payerId === userId)
+        .reduce((total, transaction) => total + transaction.amountCents, 0) - share,
+  }));
+
+  const creditors = balances.filter((entry) => entry.net > 0).toSorted((a, b) => b.net - a.net);
+  const debtors = balances.filter((entry) => entry.net < 0).toSorted((a, b) => a.net - b.net);
+
+  const settlements: Settlement[] = [];
+  let c = 0;
+  let d = 0;
+
+  while (c < creditors.length && d < debtors.length) {
+    const credit = creditors[c]!;
+    const debt = debtors[d]!;
+    const amount = Math.round(Math.min(credit.net, -debt.net));
+
+    if (amount > 0) {
+      settlements.push({
+        fromUserId: debt.userId,
+        toUserId: credit.userId,
+        amountCents: amount,
+        settled: false,
+      });
+    }
+
+    credit.net -= amount;
+    debt.net += amount;
+    if (credit.net <= 0) c += 1;
+    if (debt.net >= 0) d += 1;
+  }
+
+  return settlements;
 }
 
-export function getMonthSummary(month: IsoMonth = CURRENT_MONTH): Promise<MonthSummary> {
+export function getMonthSummary(
+  spaceId: string,
+  month: IsoMonth = CURRENT_MONTH,
+): Promise<MonthSummary> {
   return mockRequest(() => {
-    const rows = db.transactions.filter((transaction) => transaction.date.startsWith(month));
+    const space = db.spaces.find((candidate) => candidate.id === spaceId);
+    if (!space) throw new Error(`Space ${spaceId} not found.`);
+
+    const memberCount = space.members.length;
+    const rows = db.transactions.filter(
+      (transaction) => transaction.spaceId === spaceId && transaction.date.startsWith(month),
+    );
     const expenses = rows.filter((transaction) => transaction.kind === 'expense');
     const incomes = rows.filter((transaction) => transaction.kind === 'income');
 
     const expenseCents = expenses.reduce((total, transaction) => total + transaction.amountCents, 0);
     const incomeCents = incomes.reduce((total, transaction) => total + transaction.amountCents, 0);
 
-    const perPerson: PersonSummary[] = db.couple.members.map((member) => {
-      const spentCents = expenses.reduce((total, transaction) => total + carriedBy(transaction, member.id), 0);
+    const perPerson: PersonSummary[] = space.members.map((member) => {
+      const spentCents = expenses.reduce(
+        (total, transaction) => total + carriedBy(transaction, member.id, memberCount),
+        0,
+      );
       return {
         userId: member.id,
         spentCents,
@@ -53,30 +92,33 @@ export function getMonthSummary(month: IsoMonth = CURRENT_MONTH): Promise<MonthS
       };
     });
 
-    const byCategory: CategorySummary[] = db.categories.map((category) => {
-      const spentCents = rows
-        .filter((transaction) => transaction.categoryId === category.id)
-        .reduce((total, transaction) => total + transaction.amountCents, 0);
-      return {
-        categoryId: category.id,
-        spentCents,
-        limitCents: category.monthlyLimitCents,
-        usagePercent: category.monthlyLimitCents
-          ? (spentCents / category.monthlyLimitCents) * 100
-          : null,
-      };
-    });
+    const byCategory: CategorySummary[] = db.categories
+      .filter((category) => category.spaceId === spaceId)
+      .map((category) => {
+        const spentCents = rows
+          .filter((transaction) => transaction.categoryId === category.id)
+          .reduce((total, transaction) => total + transaction.amountCents, 0);
+        return {
+          categoryId: category.id,
+          spentCents,
+          limitCents: category.monthlyLimitCents,
+          usagePercent: category.monthlyLimitCents
+            ? (spentCents / category.monthlyLimitCents) * 100
+            : null,
+        };
+      });
 
     return {
+      spaceId,
       month,
       incomeCents,
       expenseCents,
       balanceCents: incomeCents - expenseCents,
       perPerson,
       byCategory,
-      settlement: buildSettlement(
+      settlements: buildSettlements(
         expenses,
-        db.couple.members.map((member) => member.id),
+        space.members.map((member) => member.id),
       ),
     };
   });

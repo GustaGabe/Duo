@@ -1,15 +1,16 @@
 import { Link } from '@tanstack/react-router';
 
-import { Avatar } from '@/components/ui/avatar';
+import { SpaceMark } from '@/components/spaces/space-mark';
+import { AvatarStack } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { useCouple } from '@/hooks/use-couple';
+import { useActiveSpace } from '@/hooks/use-spaces';
 
-import { navLink } from './nav-link';
 import { Logo } from './logo';
 import { SIDEBAR_ITEMS } from './nav';
+import { navLink } from './nav-link';
 
-export function Sidebar({ onInvite }: { onInvite: () => void }) {
-  const { data: couple } = useCouple();
+export function Sidebar({ onSwitchSpace }: { onSwitchSpace: () => void }) {
+  const { space, spaces, tones } = useActiveSpace();
 
   return (
     <aside className="hidden w-62 shrink-0 flex-col gap-7 bg-invert p-5 pt-7 text-on-invert lg:flex">
@@ -17,11 +18,7 @@ export function Sidebar({ onInvite }: { onInvite: () => void }) {
 
       <nav className="flex flex-col gap-1">
         {SIDEBAR_ITEMS.map((item) => (
-          <Link
-            key={item.to}
-            to={item.to}
-            className={navLink()}
-          >
+          <Link key={item.to} to={item.to} className={navLink()}>
             {item.label}
           </Link>
         ))}
@@ -29,20 +26,24 @@ export function Sidebar({ onInvite }: { onInvite: () => void }) {
 
       <div className="flex-1" />
 
-      <div className="rounded-panel border border-on-invert/15 p-4">
-        <p className="eyebrow mb-3 text-on-invert-muted">Casal</p>
-        <ul className="flex flex-col gap-2.5">
-          {couple?.members.map((member) => (
-            <li key={member.id} className="flex items-center gap-2.5">
-              <Avatar name={member.name} slot={member.slot} size="sm" />
-              <span className="text-label">{member.name.split(' ')[0]}</span>
-            </li>
-          ))}
-        </ul>
-        <Button variant="invert" size="sm" block className="mt-3.5" onClick={onInvite}>
-          Convidar
-        </Button>
-      </div>
+      {space ? (
+        <div className="rounded-panel border border-on-invert/15 p-4">
+          <p className="eyebrow mb-3 text-on-invert-muted">Espaço ativo</p>
+          <div className="flex items-center gap-2.5">
+            <SpaceMark space={space} tone={tones[space.id]} size="sm" />
+            <p className="min-w-0 flex-1 truncate text-label font-medium">{space.name}</p>
+          </div>
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <AvatarStack people={space.members} size="sm" />
+            <span className="text-micro text-on-invert-muted">
+              {space.members.length} {space.members.length === 1 ? 'pessoa' : 'pessoas'}
+            </span>
+          </div>
+          <Button variant="invert" size="sm" block className="mt-3.5" onClick={onSwitchSpace}>
+            {spaces && spaces.length > 1 ? 'Trocar espaço' : 'Gerenciar'}
+          </Button>
+        </div>
+      ) : null}
     </aside>
   );
 }

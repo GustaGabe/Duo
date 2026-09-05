@@ -5,10 +5,11 @@ import { createTransaction, deleteTransaction, listTransactions } from '@/api/tr
 
 import { queryKeys } from './queries';
 
-export function useTransactions(query: TransactionQuery = {}) {
+export function useTransactions(query: TransactionQuery | undefined) {
   return useQuery({
-    queryKey: queryKeys.transactions(query),
-    queryFn: () => listTransactions(query),
+    queryKey: queryKeys.transactions(query ?? { spaceId: '' }),
+    queryFn: () => listTransactions(query!),
+    enabled: Boolean(query?.spaceId),
   });
 }
 
@@ -19,16 +20,10 @@ function invalidateAll(client: ReturnType<typeof useQueryClient>) {
 
 export function useCreateTransaction() {
   const client = useQueryClient();
-  return useMutation({
-    mutationFn: createTransaction,
-    onSuccess: () => invalidateAll(client),
-  });
+  return useMutation({ mutationFn: createTransaction, onSuccess: () => invalidateAll(client) });
 }
 
 export function useDeleteTransaction() {
   const client = useQueryClient();
-  return useMutation({
-    mutationFn: deleteTransaction,
-    onSuccess: () => invalidateAll(client),
-  });
+  return useMutation({ mutationFn: deleteTransaction, onSuccess: () => invalidateAll(client) });
 }

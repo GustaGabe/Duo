@@ -15,7 +15,7 @@ import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/misc';
 import { TagSquare } from '@/components/ui/tag-square';
 import { useCategories } from '@/hooks/use-categories';
-import { useCurrentUser } from '@/hooks/use-couple';
+import { useActiveSpace, useCurrentUser } from '@/hooks/use-spaces';
 import { useMonthSummary } from '@/hooks/use-summary';
 import { visibleCategories } from '@/lib/category';
 import { formatBRL } from '@/lib/format';
@@ -28,11 +28,12 @@ function Categorias() {
   const [filter, setFilter] = useState<Filter>('all');
   const [search, setSearch] = useState('');
   const [creating, setCreating] = useState(false);
-  const { data: categories } = useCategories();
+  const { space } = useActiveSpace();
+  const { data: categories } = useCategories(space?.id);
   const { data: me } = useCurrentUser();
-  const { data: summary } = useMonthSummary();
+  const { data: summary } = useMonthSummary(space?.id);
 
-  if (!categories || !summary || !me) return <Skeleton className="h-96" />;
+  if (!space || !categories || !summary || !me) return <Skeleton className="h-96" />;
 
   const mine = visibleCategories(categories, me.id);
 
@@ -106,7 +107,7 @@ function Categorias() {
     <>
       <PageHeader
         title="Categorias"
-        subtitle={`${mine.length} categorias · ${shared} compartilhadas com o casal`}
+        subtitle={`${space.name} · ${mine.length} categorias · ${shared} compartilhadas`}
         actions={
           <div className="hidden gap-3 lg:flex">
             <Button variant="secondary">Importar padrão</Button>
@@ -170,7 +171,7 @@ function Categorias() {
       </Card>
 
       <Modal open={creating} onClose={() => setCreating(false)} title="Nova categoria" size="sm">
-        <CategoryForm ownerId={me.id} onDone={() => setCreating(false)} />
+        <CategoryForm spaceId={space.id} ownerId={me.id} onDone={() => setCreating(false)} />
       </Modal>
     </>
   );

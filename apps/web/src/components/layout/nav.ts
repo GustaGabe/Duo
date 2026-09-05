@@ -9,11 +9,12 @@ export const SIDEBAR_ITEMS: NavItem[] = [
   { to: '/reports', label: 'Relatórios' },
   { to: '/goals', label: 'Metas' },
   { to: '/categories', label: 'Categorias' },
+  { to: '/spaces', label: 'Espaços' },
 ];
 
 export const BOTTOM_NAV_ITEMS: NavItem[] = [
   { to: '/dashboard', label: 'Início' },
   { to: '/reports', label: 'Relatórios' },
   { to: '/goals', label: 'Metas' },
-  { to: '/couple', label: 'Casal' },
+  { to: '/spaces', label: 'Espaços' },
 ];
